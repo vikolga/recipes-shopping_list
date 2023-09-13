@@ -36,6 +36,7 @@ class CustomUser(AbstractUser):
 
 
 class Subscribed(models.Model):
+    """ Модель подписок на пользователей """
     user = models.ForeignKey(
         CustomUser,
         related_name='subscriber',

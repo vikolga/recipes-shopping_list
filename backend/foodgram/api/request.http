@@ -1,0 +1,28 @@
+###
+
+GET http://127.0.0.1:8000/api/users/
+
+###
+
+POST http://127.0.0.1:8000/api/users/
+content-type: application/json
+
+{
+    "email": "qwerty@yandex.ru",
+    "username": "Ivan",
+    "first_name": "Иван",
+    "last_name": "Пустовалов",
+    "password": "123456Qwerty"
+}
+
+###
+
+GET http://127.0.0.1:8000/api/users/1/
+
+###
+
+GET http://127.0.0.1:8000/api/users/2/
+
+###
+
+GET http://127.0.0.1:8000/api/users/me/
