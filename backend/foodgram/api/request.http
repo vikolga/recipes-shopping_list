@@ -1,28 +1,58 @@
-###
+### Получаем список пользователей
 
 GET http://127.0.0.1:8000/api/users/
 
-###
+###Регистрация пользователя
 
 POST http://127.0.0.1:8000/api/users/
 content-type: application/json
 
 {
-    "email": "qwerty@yandex.ru",
-    "username": "Ivan",
-    "first_name": "Иван",
-    "last_name": "Пустовалов",
-    "password": "123456Qwerty"
+    "email": "test3@yandex.ru",
+    "username": "OlegP",
+    "first_name": "Олег",
+    "last_name": "Прибыткин",
+    "password": "123Qwe456rty"
 }
 
-###
-
-GET http://127.0.0.1:8000/api/users/1/
-
-###
+### Просмотр профиля пользователя
 
 GET http://127.0.0.1:8000/api/users/2/
 
 ###
 
+GET http://127.0.0.1:8000/api/users/1/
+
+### Просмотр текущего пользователя
+
 GET http://127.0.0.1:8000/api/users/me/
+
+###Изменение пароля
+
+POST http://127.0.0.1:8000/api/users/set_password/
+content-type: application/json
+
+{
+    "new_password": "123Qwe456rtY",
+    "current_password": "123Qwe456rty"
+}
+
+### Получение токена авторизации
+POST http://127.0.0.1:8000/api/auth/token/login/
+content-type: application/json
+
+{
+    "password": "123Qwe456rty",
+    "email": "test2@yandex.ru"
+
+}
+
+### Удаление токена текущего пользователя
+POST http://127.0.0.1:8000/api/auth/token/logout/
+
+
+### Мои подписки
+
+GET http://127.0.0.1:8000/api/users/subscriptions/
+### Подписаться на пользователя
+
