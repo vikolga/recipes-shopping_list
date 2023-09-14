@@ -17,7 +17,6 @@ class Tag(models.Model):
     )
 
     class Meta:
-        #ordering = ['name',]
         constraints = [
             models.UniqueConstraint(
                 fields=['name', 'color'],
@@ -27,3 +26,25 @@ class Tag(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+
+class Ingredient(models.Model):
+    name = models.CharField(
+        max_length=200,
+        unique=True
+    )
+    measurement_unit = models.CharField(
+        max_length=200,
+    )
+    
+    class Meta:
+        ordering = ['name',] #уточнить поиск по частичному вхождению в начале названия ингредиента
+        constraints = [
+            models.UniqueConstraint(
+                fields=['name', 'measurement_unit'],
+                name='unique_nameunit'
+            ),
+        ]
+    
+    def __str__(self) -> str:
+        return f'{self.name} - {self.measurement_unit}'
