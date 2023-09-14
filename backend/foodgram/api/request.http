@@ -1,6 +1,11 @@
 ### Получаем список пользователей
 
 GET http://127.0.0.1:8000/api/users/
+content-type: application/json
+Authorization: 
+{
+    "auth_token": "9e614322ae8146ee6c09e18baf3400ae4824c3cb"
+}
 
 ###Регистрация пользователя
 
@@ -8,8 +13,8 @@ POST http://127.0.0.1:8000/api/users/
 content-type: application/json
 
 {
-    "email": "test3@yandex.ru",
     "username": "OlegP",
+    "email": "test3@yandex.ru",    
     "first_name": "Олег",
     "last_name": "Прибыткин",
     "password": "123Qwe456rty"
@@ -42,8 +47,8 @@ POST http://127.0.0.1:8000/api/auth/token/login/
 content-type: application/json
 
 {
-    "password": "123Qwe456rty",
-    "email": "test2@yandex.ru"
+    "password": "123456qwerty",
+    "email": "ov.reatch@gmail.com"
 
 }
 
