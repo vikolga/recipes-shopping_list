@@ -38,7 +38,7 @@ POST http://127.0.0.1:8000/api/users/set_password/
 content-type: application/json
 
 {
-    "new_password": "123Qwe456rtY",
+    "new_password": "123Qwe456rty",
     "current_password": "123Qwe456rty"
 }
 
@@ -47,8 +47,8 @@ POST http://127.0.0.1:8000/api/auth/token/login/
 content-type: application/json
 
 {
-    "password": "123456qwerty",
-    "email": "ov.reatch@gmail.com"
+    "password": "123Qwe456rty",
+    "email": "test3@yandex.ru"
 
 }
 
