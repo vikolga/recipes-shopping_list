@@ -19,7 +19,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
 class IngredientRecipesAdmin(admin.ModelAdmin):
     """Модель администратора для ингредиентов в рецептах"""
-    list_display = ('id', 'ingredients', 'recipes', 'amount')
+    list_display = ('id', 'ingredient', 'recipe', 'amount')
 
 
 admin.site.register(Tag, TagAdmin)

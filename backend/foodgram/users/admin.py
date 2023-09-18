@@ -4,7 +4,7 @@ from .models import Subscribed, CustomUser
 # Register your models here.
 class CustomUserAdmin(admin.ModelAdmin):
     """ Модель администратора для пользователя """
-    list_display = ('username', 'email', 'password', 'first_name', 'last_name')
+    list_display = ('id', 'username', 'email', 'password', 'first_name', 'last_name')
 
 
 class SubscribedAdmin(admin.ModelAdmin):
