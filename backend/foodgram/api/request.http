@@ -1,12 +1,3 @@
-### Получаем список пользователей
-
-GET http://127.0.0.1:8000/api/users/
-content-type: application/json
-Authorization: 
-{
-    "auth_token": "9e614322ae8146ee6c09e18baf3400ae4824c3cb"
-}
-
 ###Регистрация пользователя 1
 
 POST http://127.0.0.1:8000/api/users/
@@ -33,27 +24,6 @@ content-type: application/json
     "password": "123Qwe456rty"
 }
 
-### Просмотр профиля пользователя
-
-GET http://127.0.0.1:8000/api/users/2/
-
-###
-
-GET http://127.0.0.1:8000/api/users/1/
-
-### Просмотр текущего пользователя
-
-GET http://127.0.0.1:8000/api/users/me/
-
-###Изменение пароля
-
-POST http://127.0.0.1:8000/api/users/set_password/
-content-type: application/json
-
-{
-    "new_password": "123Qwe456rty",
-    "current_password": "123Qwe456rty"
-}
 
 ### Получение токена авторизации пользователя 1
 POST http://127.0.0.1:8000/api/auth/token/login/
@@ -84,12 +54,5 @@ content-type: application/json
     "email": "ov.reatch@gmail.com"
 
 }
-### Удаление токена текущего пользователя
-POST http://127.0.0.1:8000/api/auth/token/logout/
 
-
-### Мои подписки
-
-GET http://127.0.0.1:8000/api/users/subscriptions/
-### Подписаться на пользователя
 

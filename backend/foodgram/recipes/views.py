@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
-from .serializers import TagSerializer, IngredientSerializer, RecipeSerializers
+from .serializers import TagSerializer, IngredientSerializer, RecipeListSerializers
 from .models import Tag, Ingredient, Recipe
 from rest_framework.permissions import IsAuthenticated
 from api.permissions import AuthorOrReadOnly, AdminOrReadOnly
@@ -21,5 +21,8 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 
 class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
-    serializer_class = RecipeSerializers
-    permission_classes = (IsAuthenticated,)
+    serializer_class = RecipeListSerializers
+    permission_classes = (AuthorOrReadOnly,)
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)

@@ -7,8 +7,8 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from api.permissions import AuthorOrReadOnly
 from .models import CustomUser, Subscribed
-from .serializers import UserSerializer, SubscribedSerializer, UserCreateSerializer
-
+from recipes.serializers import SubscribedSerializer
+from .serializers import UserCreateSerializer, UserSerializer
 
 # Create your views here.
 class UserViewSet(UserViewSet):
