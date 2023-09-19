@@ -15,21 +15,21 @@ class TagSerializer(ModelSerializer):
     class Meta:
         model = Tag
         fields = '__all__'
-        read_only_fields = '__all__'
+        #read_only_fields = '__all__'
 
 
 class IngredientSerializer(ModelSerializer):
     class Meta:
         model = Ingredient
         fields = '__all__'
-        read_only_fields = '__all__'
+        #read_only_fields = '__all__'
 
 
 class RecipeSubscribSerializer(ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
-        read_only_fields = '__all__'
+        #read_only_fields = '__all__'
 
 
 class IngredientRecipesSerializer(ModelSerializer):
@@ -41,7 +41,7 @@ class IngredientRecipesSerializer(ModelSerializer):
         fields = ('id', 'name', 'measurement_unit', 'amount')
 
 
-class RecipeListSerializers(ModelSerializer):
+class RecipeSerializers(ModelSerializer):
     tags = Tag.objects.all()
     author = PrimaryKeyRelatedField(read_only=True)
     image = Base64ImageField()
@@ -67,7 +67,7 @@ class RecipeListSerializers(ModelSerializer):
         return ShoppingCart.objects.filter(user=user, recipe=obj).exists()
     
 class SubscribedSerializer(UserSerializer):
-    recipes_count = SerializerMethodField('get_count_recipes')
+    recipes_count = SerializerMethodField('get_recipes_count')
     recipes = SerializerMethodField('get_recipes')
 
     class Meta():
@@ -80,7 +80,7 @@ class SubscribedSerializer(UserSerializer):
     
     def get_recipes(self, obj):
         recipes = obj.recipes.all()
-        limit = self.context.get['request'].query_params.get['limit']
+        limit = self.context.get('request').query_params.get('limit')
         if limit:
             recipes = recipes[:int(limit)]
         return RecipeSubscribSerializer(recipes, many=True, read_only=True).data

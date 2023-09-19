@@ -49,7 +49,7 @@ class Ingredient(models.Model):
         ]
     
     def __str__(self) -> str:
-        return self.name
+        return f'{self.name}, {self.measurement_unit}'
     
 
 class Recipe(models.Model):
@@ -83,6 +83,12 @@ class Recipe(models.Model):
 
     class Meta:
         ordering = ['-id']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['name', 'author'],
+                name='unique_recipeauthor'
+            ),
+        ]
 
     def __str__(self):
         return self.name
@@ -106,7 +112,7 @@ class IngredientRecipes(models.Model):
     )
 
     def __str__(self):
-        return f'{self.ingredients.name} {self.ingredients.measurement_unit}'
+        return f'{self.ingredient.name} {self.ingredient.measurement_unit}'
     
 
 class Favourite(models.Model):
@@ -130,7 +136,7 @@ class Favourite(models.Model):
         ]
     
     def __str__(self):
-        return f'{self.recipes} в избранном {self.user}'
+        return f'{self.recipe} в избранном {self.user}'
     
 
 class ShoppingCart(models.Model):

@@ -11,15 +11,16 @@ class IngredientAdmin(admin.ModelAdmin):
     """Модель администратора для ингредиентов"""
     list_display = ('id', 'name', 'measurement_unit')
 
+class IngredientInline(admin.TabularInline):
+    model = IngredientRecipes
+    extra = 3
+
 
 class RecipeAdmin(admin.ModelAdmin):
     """ Модель администратора для рецептов"""
     list_display = ('id', 'author', 'name', 'text', 'cooking_time')
+    inlines = (IngredientInline,)
 
-
-class IngredientRecipesAdmin(admin.ModelAdmin):
-    """Модель администратора для ингредиентов в рецептах"""
-    list_display = ('ingredient', 'recipe', 'amount')
 
 class FavouriteAdmin(admin.ModelAdmin):
     """Модель админа для избранных рецептов"""
@@ -28,5 +29,4 @@ class FavouriteAdmin(admin.ModelAdmin):
 admin.site.register(Tag, TagAdmin)
 admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(Recipe, RecipeAdmin)
-admin.site.register(IngredientRecipes, IngredientRecipesAdmin)
 admin.site.register(Favourite, FavouriteAdmin)
