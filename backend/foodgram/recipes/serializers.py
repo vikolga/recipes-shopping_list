@@ -88,8 +88,8 @@ class SubscribedSerializer(UserSerializer):
 
     def validate(self, data):
         # проверить как работает валидация с обработкой ошибок при подписке
-        user = self.context.get['request'].user
-        author = self.context.get['request'].author
+        user = self.context.get('request').user
+        author = self.context.get('request').author
         if Subscribed.objects.filter(author=author, user=user).exists():
             raise ValidationError(
                 'Вы подписаны на данного пользователя!',

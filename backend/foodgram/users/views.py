@@ -15,7 +15,6 @@ from recipes.serializers import SubscribedSerializer
 class UserViewSet(UserViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
-    #permission_classes = (IsAuthenticatedOrReadOnly,)
     pagination_class = PageNumberPagination #Заменить паджинатор на кастомный с limit
     
     def get_serializer_class(self):
@@ -31,19 +30,25 @@ class UserViewSet(UserViewSet):
         author = get_object_or_404(CustomUser, id=self.kwargs.get('id'))
         
         if request.method == 'POST':
-            serializer = SubscribedSerializer(author, data=request.data, context={'request': self.request})
-            serializer.is_valid()
+            if author == request.user:
+                return Response(
+                    {'errors': 'Вы пытаетесь подписаться на себя'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            if Subscribed.objects.filter(user=user, author=author).exists():
+                return Response(
+                    {'errors': 'Вы уже подписаны на данного автора'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            serializer = SubscribedSerializer(author,
+                                              context={'request': request})
             Subscribed.objects.create(user=user, author=author)
-            return Response(serializer.data,
-                            status=status.HTTP_201_CREATED)
+            return Response(serializer.data, {'message': 'Вы подписались на автора'}, status=status.HTTP_201_CREATED)
         if request.method == 'DELETE':
             subscript = get_object_or_404(Subscribed, user=user, author=author)
-            if not subscript:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-            if user.is_anonymous:
-                return Response(status=status.HTTP_401_UNAUTHORIZED)
             subscript.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status)
 
     @action(detail=False,
             permission_classes=[IsAuthenticated],
