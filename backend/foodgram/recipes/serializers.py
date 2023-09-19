@@ -44,7 +44,7 @@ class IngredientRecipesSerializer(ModelSerializer):
 
 
 class RecipeSerializers(ModelSerializer):
-    tags = TagSerializer(many=True, read_only=True)
+    tags = PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True)
     author = PrimaryKeyRelatedField(read_only=True)
     image = Base64ImageField()
     ingredient = IngredientRecipesSerializer(many=True, source='ingredient_used')
@@ -63,10 +63,9 @@ class RecipeSerializers(ModelSerializer):
     def create(self, validated_data):
         context = self.context['request']
         ingredient = validated_data.pop('ingredient_used')
-        recipe = Recipe.objects.create(
-            **validated_data,
-            author=self.context.get('request').user
-        )
+        tags = validated_data.pop('tags')
+        recipe = Recipe.objects.create(**validated_data)
+        recipe.tags.set(tags)
         ingredients_set = context.data['ingredient']
         for ingredient in ingredients_set:
             ingredient_model = Ingredient.objects.get(id=ingredient['id'])
@@ -113,5 +112,4 @@ class SubscribedSerializer(UserSerializer):
             raise ValidationError(
                 'Подписаться на самого себя нельзя',
                 code=status.HTTP_400_BAD_REQUEST)
-
         return data
