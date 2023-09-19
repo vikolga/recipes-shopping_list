@@ -33,7 +33,9 @@ class RecipeSubscribSerializer(ModelSerializer):
 
 
 class IngredientRecipesSerializer(ModelSerializer):
-    id = ReadOnlyField(source='ingredient.id')
+    id = PrimaryKeyRelatedField(
+        queryset = Ingredient.objects.all(),
+        source='ingredient.id')
     name = ReadOnlyField(source='ingredient.name')
     measurement_unit = ReadOnlyField(source='ingredient.measurement_unit')
     class Meta:
@@ -42,10 +44,10 @@ class IngredientRecipesSerializer(ModelSerializer):
 
 
 class RecipeSerializers(ModelSerializer):
-    tags = Tag.objects.all()
+    tags = TagSerializer(many=True, read_only=True)
     author = PrimaryKeyRelatedField(read_only=True)
     image = Base64ImageField()
-    ingredient = SerializerMethodField('get_ingredient')
+    ingredient = IngredientRecipesSerializer(many=True, source='ingredient_used')
     is_favorited = SerializerMethodField('get_is_favorited')
     is_in_shopping_cart = SerializerMethodField('get_is_in_shopping_cart')
 
@@ -58,9 +60,22 @@ class RecipeSerializers(ModelSerializer):
         user = self.context.get('request').user
         return Favourite.objects.filter(user=user, recipe=obj).exists()
     
-    def get_ingredient(self, obj):
-        ingredient = IngredientRecipes.objects.filter(recipe=obj)
-        return IngredientRecipesSerializer(ingredient, many=True).data
+    def create(self, validated_data):
+        context = self.context['request']
+        ingredient = validated_data.pop('ingredient_used')
+        recipe = Recipe.objects.create(
+            **validated_data,
+            author=self.context.get('request').user
+        )
+        ingredients_set = context.data['ingredient']
+        for ingredient in ingredients_set:
+            ingredient_model = Ingredient.objects.get(id=ingredient['id'])
+            IngredientRecipes.objects.create(
+                recipe=recipe,
+                ingredient=ingredient_model,
+                amount=ingredient['amount'],
+            )
+        return recipe
 
     def get_is_in_shopping_cart(self, obj):
         user = self.context.get('request').user
