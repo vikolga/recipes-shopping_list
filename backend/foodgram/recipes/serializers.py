@@ -1,7 +1,7 @@
 from django.forms import ValidationError
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework.serializers import (ModelSerializer,
-SerializerMethodField, ReadOnlyField, PrimaryKeyRelatedField)
+SerializerMethodField, ReadOnlyField, PrimaryKeyRelatedField, IntegerField)
 from rest_framework import status
 from users.serializers import UserSerializer
 from users.models import CustomUser, Subscribed
@@ -57,8 +57,16 @@ class RecipeSerializers(ModelSerializer):
                   'is_in_shopping_cart', 'name', 'image', 'text', 'cooking_time')
 
     def get_is_favorited(self, obj):
-        user = self.context.get('request').user
+        user = self.context('request').user
+        if user.is_anonymous:
+            return False
         return Favourite.objects.filter(user=user, recipe=obj).exists()
+    
+    def get_is_in_shopping_cart(self, obj):
+        user = self.context.get('request').user
+        if user.is_anonymous:
+            return False
+        return ShoppingCart.objects.filter(user=user, recipe=obj).exists()
     
     def create(self, validated_data):
         context = self.context['request']
@@ -66,19 +74,37 @@ class RecipeSerializers(ModelSerializer):
         tags = validated_data.pop('tags')
         recipe = Recipe.objects.create(**validated_data)
         recipe.tags.set(tags)
-        ingredients_set = context.data['ingredient']
-        for ingredient in ingredients_set:
-            ingredient_model = Ingredient.objects.get(id=ingredient['id'])
+        current_ingredients = context.data['ingredient']
+        for ingredient in current_ingredients:
+            current_ingredient = Ingredient.objects.get(id=ingredient['id'])
             IngredientRecipes.objects.create(
                 recipe=recipe,
-                ingredient=ingredient_model,
+                ingredient=current_ingredient,
                 amount=ingredient['amount'],
             )
         return recipe
+    
 
-    def get_is_in_shopping_cart(self, obj):
+class ShoppingCartSerializer(ModelSerializer):
+    class Meta:
+        model = ShoppingCart
+        fields = '__all__'
+    
+    def validate(self, data):
         user = self.context.get('request').user
-        return ShoppingCart.objects.filter(user=user, recipe=obj).exists()
+        recipe = self.context.get('request').recipe
+        if ShoppingCart.objects.filter(user=user, recipe=recipe).exists():
+            raise ValidationError(
+                'Рецепт уже был добавлен в корзину',
+                code=status.HTTP_400_BAD_REQUEST)
+        return data
+    
+    def create(self, validated_data):
+        user = validated_data.pop('user')
+        recipe = validated_data.pop('recipe')
+        ShoppingCart.objects.get_or_create(user=user, recipe=recipe)
+        return validated_data
+    
     
 class SubscribedSerializer(UserSerializer):
     recipes_count = SerializerMethodField('get_recipes_count')
@@ -91,7 +117,7 @@ class SubscribedSerializer(UserSerializer):
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
-    
+
     def get_recipes(self, obj):
         recipes = obj.recipes.all()
         limit = self.context.get('request').query_params.get('limit')
@@ -111,5 +137,26 @@ class SubscribedSerializer(UserSerializer):
         if user == author:
             raise ValidationError(
                 'Подписаться на самого себя нельзя',
+                code=status.HTTP_400_BAD_REQUEST)
+        return data
+
+
+class FavoriteSerializer(ModelSerializer):
+    user = IntegerField(source='user.id')
+    recipe = IntegerField(source='recipe.id')
+    class Meta():
+        model = Favourite
+        fields = '__all__'    
+
+    def validate(self, data):
+        user = data['user']['id']
+        recipe = data['recipe']['id']
+        if Favourite.objects.filter(recipe=recipe, user=user).exists():
+            raise ValidationError(
+                'Рецепт уже добавленных в избранное',
+                code=status.HTTP_400_BAD_REQUEST)
+        if user == 'recipes_author':
+            raise ValidationError(
+                'вы автор данного рецепта',
                 code=status.HTTP_400_BAD_REQUEST)
         return data

@@ -29,7 +29,6 @@ class UserViewSet(UserViewSet):
     def subscribe(self, request, **kwargs):
         user = request.user
         author = get_object_or_404(CustomUser, id=self.kwargs.get('id'))
-        
         if request.method == 'POST':
             if author == request.user:
                 return Response(
@@ -47,8 +46,7 @@ class UserViewSet(UserViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         if request.method == 'DELETE':
             if Subscribed.objects.filter(user=user, author=author).exists():
-                subscript = get_object_or_404(Subscribed, user=user, author=author)
-                subscript.delete()
+                get_object_or_404(Subscribed, user=user, author=author).delete()
                 return Response(
                     {'message': 'Вы отписались от автора'},
                     status=status.HTTP_204_NO_CONTENT)
