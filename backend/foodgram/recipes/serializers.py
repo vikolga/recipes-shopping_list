@@ -49,7 +49,7 @@ class RecipeSerializers(ModelSerializer):
     image = Base64ImageField()
     ingredient = IngredientRecipesSerializer(many=True, source='ingredient_used')
     is_favorited = SerializerMethodField('get_is_favorited')
-    is_in_shopping_cart = SerializerMethodField('get_is_in_shopping_cart')
+    is_in_shopping_cart = SerializerMethodField('get_is_in_shopping_cart', read_only=True)
 
     class Meta:
         model = Recipe
@@ -57,16 +57,16 @@ class RecipeSerializers(ModelSerializer):
                   'is_in_shopping_cart', 'name', 'image', 'text', 'cooking_time')
 
     def get_is_favorited(self, obj):
-        user = self.context('request').user
+        user = self.context.get('request').user
         if user.is_anonymous:
             return False
         return Favourite.objects.filter(user=user, recipe=obj).exists()
-    
+
     def get_is_in_shopping_cart(self, obj):
         user = self.context.get('request').user
         if user.is_anonymous:
             return False
-        return ShoppingCart.objects.filter(user=user, recipe=obj).exists()
+        return Subscribed.objects.filter(user=user, recipe=obj).exists()
     
     def create(self, validated_data):
         context = self.context['request']
@@ -86,22 +86,25 @@ class RecipeSerializers(ModelSerializer):
     
 
 class ShoppingCartSerializer(ModelSerializer):
-    class Meta:
-        model = ShoppingCart
-        fields = '__all__'
-    
+    user = IntegerField(source='user.id')
+    recipe = IntegerField(source='recipe.id')
+
+    class Meta():
+        model = Favourite
+        fields = '__all__'    
+
     def validate(self, data):
-        user = self.context.get('request').user
-        recipe = self.context.get('request').recipe
-        if ShoppingCart.objects.filter(user=user, recipe=recipe).exists():
+        user = data['user']['id']
+        recipe = data['recipe']['id']
+        if ShoppingCart.objects.filter(user=user, recipe__id=recipe).exists():
             raise ValidationError(
-                'Рецепт уже был добавлен в корзину',
-                code=status.HTTP_400_BAD_REQUEST)
+                {'errors': 'Рецепт уже был добавлен в список покупок'}
+            )
         return data
-    
+
     def create(self, validated_data):
-        user = validated_data.pop('user')
-        recipe = validated_data.pop('recipe')
+        user = validated_data['user']
+        recipe = validated_data['recipe']
         ShoppingCart.objects.get_or_create(user=user, recipe=recipe)
         return validated_data
     
@@ -144,6 +147,7 @@ class SubscribedSerializer(UserSerializer):
 class FavoriteSerializer(ModelSerializer):
     user = IntegerField(source='user.id')
     recipe = IntegerField(source='recipe.id')
+
     class Meta():
         model = Favourite
         fields = '__all__'    
@@ -151,12 +155,14 @@ class FavoriteSerializer(ModelSerializer):
     def validate(self, data):
         user = data['user']['id']
         recipe = data['recipe']['id']
-        if Favourite.objects.filter(recipe=recipe, user=user).exists():
+        if Favourite.objects.filter(user=user, recipe__id=recipe).exists():
             raise ValidationError(
-                'Рецепт уже добавленных в избранное',
-                code=status.HTTP_400_BAD_REQUEST)
-        if user == 'recipes_author':
-            raise ValidationError(
-                'вы автор данного рецепта',
-                code=status.HTTP_400_BAD_REQUEST)
+                {'errors': 'Рецепт уже в избранном'}
+            )
         return data
+
+    def create(self, validated_data):
+        user = validated_data['user']
+        recipe = validated_data['recipe']
+        Favourite.objects.get_or_create(user=user, recipe=recipe)
+        return validated_data
