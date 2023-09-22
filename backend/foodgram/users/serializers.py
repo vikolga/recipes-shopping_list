@@ -1,7 +1,6 @@
 from rest_framework.serializers import SerializerMethodField
 from djoser.serializers import UserSerializer as UserDjoserSerializer
 from djoser.serializers import UserCreateSerializer
-from rest_framework import status
 from rest_framework.fields import SerializerMethodField
 
 from .models import Subscribed, CustomUser

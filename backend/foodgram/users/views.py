@@ -5,17 +5,17 @@ from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 
 from .models import CustomUser, Subscribed
 from .serializers import UserCreateSerializer, UserSerializer
 from recipes.serializers import SubscribedSerializer
+from api.paginations import CustomPageNumberPaginator
 
 # Create your views here.
 class UserViewSet(UserViewSet):
     queryset = CustomUser.objects.all()
-    pagination_class = PageNumberPagination #Заменить паджинатор на кастомный с limit
+    pagination_class = CustomPageNumberPaginator #Заменить паджинатор на кастомный с limit
     
     def get_serializer_class(self):
         if self.action == 'create':

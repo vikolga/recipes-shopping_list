@@ -1,15 +1,18 @@
+from ipaddress import summarize_address_range
+from django.http import HttpResponse
 from rest_framework.response import Response
 from rest_framework import status
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404
+from django.db.models import Sum
 from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
 
 
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.decorators import action
 
 from api.permissions import AuthorOrReadOnly, AdminOrReadOnly
-from .models import Tag, Ingredient, Recipe, ShoppingCart, Favourite
+from api.paginations import CustomPageNumberPaginator
+from .models import Tag, Ingredient, Recipe, ShoppingCart, Favourite, IngredientRecipes
 from .serializers import (TagSerializer, IngredientSerializer,
                           RecipeSerializers, ShoppingCartSerializer,
                           RecipeSubscribSerializer, FavoriteSerializer)
@@ -31,6 +34,7 @@ class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializers
     permission_classes = (AuthorOrReadOnly,)
+    pagination_class = CustomPageNumberPaginator
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -87,3 +91,28 @@ class RecipeViewSet(ModelViewSet):
                 {'error': 'Рецепт не был добавлен в избранное'},
                 status=status.HTTP_400_BAD_REQUEST)
         return Response(status)
+    
+    @action(detail=True,
+            permission_classes=[IsAuthenticated],
+            url_path='download_shopping_cart', url_name='download_shopping_cart',
+            methods=['get'])
+    def download_shopping_cart(self, request):
+        user = request.user
+        if user.is_anonymous:
+            return Response(
+                {'error': 'Учетные данные не были предоставлены.'},
+                status=status.HTTP_401_UNAUTHORIZED)
+        list_shopping = 'Список покупок: '
+        ingredients = IngredientRecipes.objects.filter(
+            recipe__shopping_cart__user=user
+        ).values('ingredient__name', 'ingredient__measurement_unit').annotate(
+            amounts=Sum('amount')
+        )
+        for i in enumerate(ingredients):
+            list_shopping +=(f'\n{i["ingredient__name"]} - '
+                             f'{i["amounts"]} {i["ingredient__measurement_unit"]}'
+                             )
+        file = 'shopping_cart'
+        response = HttpResponse(list_shopping, 'Content-Type: application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{file}.pdf"'
+        return response
