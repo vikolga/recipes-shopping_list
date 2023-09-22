@@ -84,6 +84,21 @@ class RecipeSerializers(ModelSerializer):
             )
         return recipe
     
+    def update(self, instance, validated_data):
+        context = self.context['request']
+        ingredient = validated_data.pop('ingredient_used')
+        recipe = instance
+        IngredientRecipes.objects.filter(recipe=recipe).delete()
+        current_ingredients = context.data['ingredient']
+        for ingredient in current_ingredients:
+            current_ingredient = Ingredient.objects.get(id=ingredient['id'])
+            IngredientRecipes.objects.create(
+                recipe=recipe,
+                ingredient=current_ingredient,
+                amount=ingredient['amount'],
+            )
+        return super().update(instance, validated_data)
+    
 
 class ShoppingCartSerializer(ModelSerializer):
     user = IntegerField(source='user.id')
