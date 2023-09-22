@@ -15,7 +15,6 @@ from recipes.serializers import SubscribedSerializer
 # Create your views here.
 class UserViewSet(UserViewSet):
     queryset = CustomUser.objects.all()
-    serializer_class = UserSerializer
     pagination_class = PageNumberPagination #Заменить паджинатор на кастомный с limit
     
     def get_serializer_class(self):
