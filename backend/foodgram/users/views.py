@@ -18,6 +18,7 @@ class UserViewSet(UserViewSet):
     queryset = CustomUser.objects.all()
     pagination_class = CustomPageNumberPaginator
     filter_class = LimitFilter #Заменить паджинатор на кастомный с limit
+    serializer_class = UserSerializer
     
     """def get_serializer_class(self):
         if self.action == 'create':

@@ -32,8 +32,7 @@ class Tag(models.Model):
 
 class Ingredient(models.Model):
     name = models.CharField(
-        max_length=200,
-        unique=True
+        max_length=200
     )
     measurement_unit = models.CharField(
         max_length=200,
@@ -44,10 +43,9 @@ class Ingredient(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['name', 'measurement_unit'],
-                name='unique_nameunit'
+                name='unique_name_measurement_unit'
             ),
         ]
-    
     def __str__(self) -> str:
         return f'{self.name}, {self.measurement_unit}'
     

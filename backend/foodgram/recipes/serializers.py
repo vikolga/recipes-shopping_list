@@ -25,6 +25,7 @@ class IngredientSerializer(ModelSerializer):
         #read_only_fields = '__all__'
 
 
+
 class RecipeSubscribSerializer(ModelSerializer):
     class Meta:
         model = Recipe
@@ -45,7 +46,7 @@ class IngredientRecipesSerializer(ModelSerializer):
 
 class RecipeSerializers(ModelSerializer):
     tags = PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True, required=True,)
-    author = CustomUser(read_only=True)
+    author = PrimaryKeyRelatedField(read_only=True)
     image = Base64ImageField()
     ingredient = IngredientRecipesSerializer(many=True, source='ingredient_used')
     is_favorited = SerializerMethodField('get_is_favorited')
@@ -69,7 +70,6 @@ class RecipeSerializers(ModelSerializer):
         return ShoppingCart.objects.filter(user=user, recipe=obj).exists()
     
     def create(self, validated_data):
-        author = UserSerializer(read_only=True)
         context = self.context['request']
         ingredient = validated_data.pop('ingredient_used')
         tags = validated_data.pop('tags')
