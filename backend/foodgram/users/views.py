@@ -23,7 +23,7 @@ class UserViewSet(UserViewSet):
         if self.action == 'create':
             return UserCreateSerializer
         return UserSerializer"""
-    
+
     @action(detail=True,
             permission_classes=[IsAuthenticated],
             methods=['post', 'delete'])

@@ -33,12 +33,13 @@ class IngredientViewSet(ReadOnlyModelViewSet):
     permission_classes = (AdminOrReadOnly,)
     #pagination_class = CustomPageNumberPaginator
     #filter_class = LimitFilter
+    #добавить фильтр ингредиентов
 
 
 class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializers
-    permission_classes = (AuthorOrReadOnly,)
+    permission_classes = [AuthorOrReadOnly,]
     pagination_class = CustomPageNumberPaginator
     #filter_class = LimitFilter
 

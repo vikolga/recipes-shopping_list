@@ -63,7 +63,7 @@ class Recipe(models.Model):
         related_name='recipes',
         on_delete=models.CASCADE
     )
-    ingredient = models.ManyToManyField(
+    ingredients = models.ManyToManyField(
         Ingredient,
         through='IngredientRecipes',
         #through_fields=('recipe', 'ingredient'),
