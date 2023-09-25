@@ -11,11 +11,13 @@ from .models import CustomUser, Subscribed
 from .serializers import UserCreateSerializer, UserSerializer
 from recipes.serializers import SubscribedSerializer
 from api.paginations import CustomPageNumberPaginator
+from api.filters import LimitFilter
 
 # Create your views here.
 class UserViewSet(UserViewSet):
     queryset = CustomUser.objects.all()
-    pagination_class = CustomPageNumberPaginator #Заменить паджинатор на кастомный с limit
+    pagination_class = CustomPageNumberPaginator
+    filter_class = LimitFilter #Заменить паджинатор на кастомный с limit
     
     def get_serializer_class(self):
         if self.action == 'create':

@@ -44,7 +44,7 @@ class IngredientRecipesSerializer(ModelSerializer):
 
 
 class RecipeSerializers(ModelSerializer):
-    tags = PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True)
+    tags = PrimaryKeyRelatedField(queryset=Tag.objects.all())
     author = PrimaryKeyRelatedField(read_only=True)
     image = Base64ImageField()
     ingredient = IngredientRecipesSerializer(many=True, source='ingredient_used')
