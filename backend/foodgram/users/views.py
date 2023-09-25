@@ -19,10 +19,10 @@ class UserViewSet(UserViewSet):
     pagination_class = CustomPageNumberPaginator
     filter_class = LimitFilter #Заменить паджинатор на кастомный с limit
     
-    def get_serializer_class(self):
+    """def get_serializer_class(self):
         if self.action == 'create':
             return UserCreateSerializer
-        return UserSerializer
+        return UserSerializer"""
     
     @action(detail=True,
             permission_classes=[IsAuthenticated],

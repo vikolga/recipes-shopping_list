@@ -7,7 +7,7 @@ from users.serializers import UserSerializer
 from users.models import CustomUser, Subscribed
 
 from .models import (Tag, Ingredient, Recipe, IngredientRecipes,
-                     ShoppingCart, Favourite)
+                     ShoppingCart, Favourite, TagRecipe)
 
 
 
@@ -44,7 +44,10 @@ class IngredientRecipesSerializer(ModelSerializer):
 
 
 class RecipeSerializers(ModelSerializer):
-    tags = PrimaryKeyRelatedField(queryset=Tag.objects.all())
+    tags = PrimaryKeyRelatedField(
+        queryset=Tag.objects.all(),
+        many=True,
+        required=True,)
     author = PrimaryKeyRelatedField(read_only=True)
     image = Base64ImageField()
     ingredient = IngredientRecipesSerializer(many=True, source='ingredient_used')

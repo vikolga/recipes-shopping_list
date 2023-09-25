@@ -55,6 +55,7 @@ class Ingredient(models.Model):
 class Recipe(models.Model):
     tags = models.ManyToManyField(
         Tag,
+        through='TagRecipe',
         related_name='recipes'
     )
     author = models.ForeignKey(
@@ -153,11 +154,35 @@ class ShoppingCart(models.Model):
 
     class Meta:
         constraints = [
-        models.UniqueConstraint(
-            fields=['user', 'recipe'],
-            name='unique_usershopping'
-        ),
-    ]
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_usershopping'
+            ),
+        ]
     
     def __str__(self):
         return f'{self.user} добавил {self.recipe} в список покупок'
+
+
+class TagRecipe(models.Model):
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='tag_recipe'
+    )
+    tag = models.ForeignKey(
+        Tag,
+        on_delete=models.CASCADE,
+        related_name='tags'
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['tag', 'recipe'],
+                name='unique_tagrecipe'
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.recipe} {self.tag}'

@@ -12,6 +12,7 @@ from rest_framework.decorators import action
 
 from api.permissions import AuthorOrReadOnly, AdminOrReadOnly
 from api.paginations import CustomPageNumberPaginator
+from api.filters import LimitFilter
 from .models import Tag, Ingredient, Recipe, ShoppingCart, Favourite, IngredientRecipes
 from .serializers import (TagSerializer, IngredientSerializer,
                           RecipeSerializers, ShoppingCartSerializer,
@@ -22,12 +23,16 @@ class TagViewSet(ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = (AdminOrReadOnly,)
+    #pagination_class = CustomPageNumberPaginator
+    #filter_class = LimitFilter
 
 
 class IngredientViewSet(ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (AdminOrReadOnly,)
+    #pagination_class = CustomPageNumberPaginator
+    #filter_class = LimitFilter
 
 
 class RecipeViewSet(ModelViewSet):
@@ -35,6 +40,7 @@ class RecipeViewSet(ModelViewSet):
     serializer_class = RecipeSerializers
     permission_classes = (AuthorOrReadOnly,)
     pagination_class = CustomPageNumberPaginator
+    #filter_class = LimitFilter
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)

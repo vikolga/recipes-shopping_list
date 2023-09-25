@@ -138,8 +138,6 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 6,
 }
 
 DJOSER = {
@@ -147,9 +145,13 @@ DJOSER = {
     'HIDE_USERS': False,
     'SERIALIZERS': {
         'user': 'users.serializers.UserSerializer',
-        'user_list': 'users.serializers.UserSerializer',
+        #'user_list': 'users.serializers.UserSerializer',
         'current_user': 'users.serializers.UserSerializer',
         'user_create': 'users.serializers.UserCreateSerializer',
+    },
+    'PERMISSIONS': {
+        'user': ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
+        'user_list': ['djoser.permissions.CurrentUserOrAdminOrReadOnly']
     },
 }
 
@@ -158,7 +160,7 @@ ACCOUNT_USER_MODEL_USERNAME_FIELD = 'email'
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'collected_static'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
