@@ -177,8 +177,9 @@ class SubscribedSerializer(UserSerializer):
         return obj.recipes.count()
 
     def get_recipes(self, obj):
+        request = self.context.get('request')
         recipes = obj.recipes.all()
-        limit = self.context.get('request').query_params.get('limit')
+        limit = request.GET.get('recipes_limit')
         if limit:
             recipes = recipes[:int(limit)]
         return RecipeSubscribSerializer(recipes,
