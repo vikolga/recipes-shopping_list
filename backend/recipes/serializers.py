@@ -38,6 +38,7 @@ class IngredientRecipesSerializer(ModelSerializer):
         source='ingredient.id')
     name = ReadOnlyField(source='ingredient.name')
     measurement_unit = ReadOnlyField(source='ingredient.measurement_unit')
+
     class Meta:
         model = IngredientRecipes
         fields = ('id', 'name', 'measurement_unit', 'amount')
@@ -45,7 +46,7 @@ class IngredientRecipesSerializer(ModelSerializer):
 
 class RecipeSerializers(ModelSerializer):
     tags = PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True)
-    author = PrimaryKeyRelatedField(read_only=True)
+    author = UserSerializer(read_only=True)
     image = Base64ImageField()
     ingredient = IngredientRecipesSerializer(many=True, source='ingredient_used')
     is_favorited = SerializerMethodField('get_is_favorited')
@@ -67,7 +68,7 @@ class RecipeSerializers(ModelSerializer):
         if user.is_anonymous:
             return False
         return ShoppingCart.objects.filter(user=user, recipe=obj).exists()
-    
+
     def create(self, validated_data):
         context = self.context['request']
         ingredient = validated_data.pop('ingredient_used')
@@ -83,7 +84,7 @@ class RecipeSerializers(ModelSerializer):
                 amount=ingredient['amount'],
             )
         return recipe
-    
+
     def update(self, instance, validated_data):
         context = self.context['request']
         ingredient = validated_data.pop('ingredient_used')

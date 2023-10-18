@@ -17,7 +17,7 @@ from .serializers import (TagSerializer, IngredientSerializer,
                           RecipeSerializers, ShoppingCartSerializer,
                           RecipeSubscribSerializer, FavoriteSerializer)
 
-# Create your views here.
+
 class TagViewSet(ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
@@ -39,7 +39,7 @@ class RecipeViewSet(ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    
+
     @action(detail=True,
             permission_classes=[IsAuthenticated],
             url_path='shopping_cart', url_name='shopping_cart',
