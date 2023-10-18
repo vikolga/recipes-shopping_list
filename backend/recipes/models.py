@@ -52,9 +52,21 @@ class Ingredient(models.Model):
         return f'{self.name}, {self.measurement_unit}'
 
 
+class TagRecipes(models.Model):
+    recipe = models.ForeignKey(
+        'Recipe',
+        on_delete=models.CASCADE,
+    )
+    tag = models.ForeignKey(
+        Tag,
+        on_delete=models.CASCADE,
+    )
+
+
 class Recipe(models.Model):
     tags = models.ManyToManyField(
         Tag,
+        through=TagRecipes,
         related_name='recipes'
     )
     author = models.ForeignKey(
@@ -85,7 +97,7 @@ class Recipe(models.Model):
     pub_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-pub_date']
+        ordering = ['-pub_date',]
         constraints = [
             models.UniqueConstraint(
                 fields=['name', 'author'],

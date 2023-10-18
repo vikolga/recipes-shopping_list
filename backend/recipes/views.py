@@ -13,9 +13,9 @@ from api.permissions import AuthorOrReadOnly, AdminOrReadOnly
 from api.paginations import CustomPageNumberPaginator
 from .models import Tag, Ingredient, Recipe, ShoppingCart, Favourite
 from .serializers import (TagSerializer, IngredientSerializer,
-                          RecipeSerializers, ShoppingCartSerializer,
+                          RecipeListSerializers, ShoppingCartSerializer,
                           RecipeSubscribSerializer, FavoriteSerializer,
-                          IngredientRecipes)
+                          IngredientRecipes, RecipeCreateUpdateSerializers)
 
 
 class TagViewSet(ReadOnlyModelViewSet):
@@ -28,16 +28,22 @@ class IngredientViewSet(ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (AdminOrReadOnly,)
+    search_fields = ('^name', )
 
 
 class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
-    serializer_class = RecipeSerializers
+    # serializer_class = RecipeCreateUpdateSerializers
     permission_classes = (AuthorOrReadOnly,)
     pagination_class = CustomPageNumberPaginator
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return RecipeListSerializers
+        return RecipeCreateUpdateSerializers
 
     @action(detail=True,
             permission_classes=[IsAuthenticated],
@@ -71,36 +77,12 @@ class RecipeViewSet(ModelViewSet):
             url_path='favorite', url_name='favorite',
             methods=['post', 'delete'])
     def favorite(self, request, pk):
-        # РЕЦЕПТ АВТОМАТИЧЕСКИ УХОДИТ В ИЗБРАЕННОЕ И ТАМ ОСТАЕТСЯ
         user = request.user
         recipe = get_object_or_404(Recipe, id=pk)
         if request.method == 'POST':
-
-            if Favourite.objects.filter(user=user, recipe=recipe).exists():
-                return Response(
-                    {'errors': 'Вы уже подписаны на данного автора'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            serializer = FavoriteSerializer(recipe,
-                                            context={'request': request})
-            Favourite.objects.create(user=user, recipe=recipe)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        if request.method == 'DELETE':
-            if Favourite.objects.filter(user=user, recipe=recipe).exists():
-                get_object_or_404(Favourite, user=user, recipe=recipe).delete()
-                return Response(
-                    {'message': 'Вы отписались от автора'},
-                    status=status.HTTP_204_NO_CONTENT)
-            return Response(
-                {'error': 'Вы не подписаны на данного автора'},
-                status=status.HTTP_400_BAD_REQUEST)
-        return Response(status)
-        '''user=request.user
-        recipe = get_object_or_404(Recipe, id=pk)
-        serializer = FavoriteSerializer(
-            data={'user': user.id, 'recipe': recipe.id}
-        )
-        if request.method == 'POST':
+            serializer = FavoriteSerializer(
+                data={'user': user.id, 'recipe': recipe.id}
+            )
             serializer.is_valid(raise_exception=True)
             serializer.save(recipe=recipe, user=request.user)
             serializer = RecipeSubscribSerializer(recipe)
@@ -114,14 +96,14 @@ class RecipeViewSet(ModelViewSet):
             return Response(
                 {'error': 'Рецепт не был добавлен в избранное'},
                 status=status.HTTP_400_BAD_REQUEST)
-        return Response(status)'''
+        return Response(status)
 
     @action(detail=True,
             permission_classes=[IsAuthenticated],
             url_path='download_shopping_cart',
             url_name='download_shopping_cart',
             methods=['get'])
-    def download_shopping_cart(self, request):
+    def download_shopping_cart(self, request, **kwargs):
         user = request.user
         if user.is_anonymous:
             return Response(

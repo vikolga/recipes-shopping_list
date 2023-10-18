@@ -14,9 +14,9 @@ services:
       context: ../backend
       dockerfile: Dockerfile
     volumes:
-      - data_value:/code/data/
-      - static_value:/code/static/
-      - media_value:/code/media/
+      - data_value:/app/data/
+      - static_value:/app/static/
+      - media_value:/app/media/
     depends_on:
       - db
     env_file:
