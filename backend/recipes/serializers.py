@@ -1,7 +1,8 @@
 from django.forms import ValidationError
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework.serializers import (ModelSerializer,
-SerializerMethodField, ReadOnlyField, PrimaryKeyRelatedField, IntegerField)
+                                        SerializerMethodField, ReadOnlyField,
+                                        PrimaryKeyRelatedField, IntegerField)
 from rest_framework import status
 from users.serializers import UserSerializer
 from users.models import CustomUser, Subscribed
@@ -10,31 +11,30 @@ from .models import (Tag, Ingredient, Recipe, IngredientRecipes,
                      ShoppingCart, Favourite)
 
 
-
 class TagSerializer(ModelSerializer):
     class Meta:
         model = Tag
         fields = '__all__'
-        #read_only_fields = '__all__'
+        # read_only_fields = '__all__'
 
 
 class IngredientSerializer(ModelSerializer):
     class Meta:
         model = Ingredient
         fields = '__all__'
-        #read_only_fields = '__all__'
+        # read_only_fields = '__all__'
 
 
 class RecipeSubscribSerializer(ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
-        #read_only_fields = '__all__'
+        # read_only_fields = '__all__'
 
 
 class IngredientRecipesSerializer(ModelSerializer):
     id = PrimaryKeyRelatedField(
-        queryset = Ingredient.objects.all(),
+        queryset=Ingredient.objects.all(),
         source='ingredient.id')
     name = ReadOnlyField(source='ingredient.name')
     measurement_unit = ReadOnlyField(source='ingredient.measurement_unit')
@@ -48,14 +48,17 @@ class RecipeSerializers(ModelSerializer):
     tags = PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True)
     author = UserSerializer(read_only=True)
     image = Base64ImageField()
-    ingredient = IngredientRecipesSerializer(many=True, source='ingredient_used')
+    ingredient = IngredientRecipesSerializer(many=True,
+                                             source='ingredient_used')
     is_favorited = SerializerMethodField('get_is_favorited')
-    is_in_shopping_cart = SerializerMethodField('get_is_in_shopping_cart', read_only=True)
+    is_in_shopping_cart = SerializerMethodField('get_is_in_shopping_cart',
+                                                read_only=True)
 
     class Meta:
         model = Recipe
         fields = ('id', 'tags', 'author', 'ingredient', 'is_favorited',
-                  'is_in_shopping_cart', 'name', 'image', 'text', 'cooking_time')
+                  'is_in_shopping_cart', 'name', 'image', 'text',
+                  'cooking_time')
 
     def get_is_favorited(self, obj):
         user = self.context.get('request').user
@@ -99,7 +102,7 @@ class RecipeSerializers(ModelSerializer):
                 amount=ingredient['amount'],
             )
         return super().update(instance, validated_data)
-    
+
 
 class ShoppingCartSerializer(ModelSerializer):
     user = IntegerField(source='user.id')
@@ -107,7 +110,7 @@ class ShoppingCartSerializer(ModelSerializer):
 
     class Meta():
         model = Favourite
-        fields = '__all__'    
+        fields = '__all__'
 
     def validate(self, data):
         user = data['user']['id']
@@ -123,8 +126,8 @@ class ShoppingCartSerializer(ModelSerializer):
         recipe = validated_data['recipe']
         ShoppingCart.objects.get_or_create(user=user, recipe=recipe)
         return validated_data
-    
-    
+
+
 class SubscribedSerializer(UserSerializer):
     recipes_count = SerializerMethodField('get_recipes_count')
     recipes = SerializerMethodField('get_recipes')
@@ -142,11 +145,10 @@ class SubscribedSerializer(UserSerializer):
         limit = self.context.get('request').query_params.get('limit')
         if limit:
             recipes = recipes[:int(limit)]
-        return RecipeSubscribSerializer(recipes, many=True, read_only=True).data
-    
+        return RecipeSubscribSerializer(recipes,
+                                        many=True, read_only=True).data
 
     def validate(self, data):
-        # проверить как работает валидация с обработкой ошибок при подписке
         user = self.context.get('request').user
         author = self.context.get('request').author
         if Subscribed.objects.filter(author=author, user=user).exists():
@@ -166,7 +168,7 @@ class FavoriteSerializer(ModelSerializer):
 
     class Meta():
         model = Favourite
-        fields = '__all__'    
+        fields = '__all__'
 
     def validate(self, data):
         user = data['user']['id']

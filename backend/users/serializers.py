@@ -5,6 +5,7 @@ from rest_framework.fields import SerializerMethodField
 
 from .models import Subscribed, CustomUser
 
+
 class UserSerializer(UserDjoserSerializer):
     is_subscribed = SerializerMethodField(
         'get_is_subscribed',
@@ -16,7 +17,7 @@ class UserSerializer(UserDjoserSerializer):
         if user.is_anonymous:
             return False
         return Subscribed.objects.filter(user=user, author=obj).exists()
-    
+
     class Meta:
         model = CustomUser
         fields = ('id', 'username', 'email', 'first_name', 

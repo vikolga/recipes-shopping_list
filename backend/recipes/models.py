@@ -2,7 +2,7 @@ from django.db import models
 from django.core.validators import MinValueValidator
 from users.models import CustomUser
 
-# Create your models here.
+
 class Tag(models.Model):
     name = models.CharField(
         max_length=200,
@@ -33,24 +33,24 @@ class Tag(models.Model):
 class Ingredient(models.Model):
     name = models.CharField(
         max_length=200,
-        unique=True
     )
     measurement_unit = models.CharField(
         max_length=200,
     )
 
     class Meta:
-        ordering = ['name',] #уточнить поиск по частичному вхождению в начале названия ингредиента
+        ordering = ['name',]
+        # уточнить поиск по частичному вхождению в начале названия ингредиента
         constraints = [
             models.UniqueConstraint(
                 fields=['name', 'measurement_unit'],
                 name='unique_nameunit'
             ),
         ]
-    
+
     def __str__(self) -> str:
         return f'{self.name}, {self.measurement_unit}'
-    
+
 
 class Recipe(models.Model):
     tags = models.ManyToManyField(
@@ -62,27 +62,30 @@ class Recipe(models.Model):
         related_name='recipes',
         on_delete=models.CASCADE
     )
-    ingredient = models.ManyToManyField(
+    ingredients = models.ManyToManyField(
         Ingredient,
         through='IngredientRecipes',
-        #through_fields=('recipe', 'ingredient'),
+        # through_fields=('recipe', 'ingredient'),
         related_name='recipes'
     )
     name = models.CharField(max_length=200)
     image = models.ImageField(
-        upload_to='recipes/image/',
+        # upload_to='recipes/image/',
         null=True,
         default=None
     )
     text = models.TextField()
     cooking_time = models.PositiveSmallIntegerField(
         validators=[
-            MinValueValidator(1, message ='Время приготовления не может быть менее 1 минуты.')
+            MinValueValidator(
+                1,
+                message='Время приготовления не может быть менее 1 минуты.')
         ]
     )
+    pub_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-id']
+        ordering = ['-pub_date']
         constraints = [
             models.UniqueConstraint(
                 fields=['name', 'author'],
@@ -107,13 +110,15 @@ class IngredientRecipes(models.Model):
     )
     amount = models.PositiveSmallIntegerField(
         validators=[
-            MinValueValidator(1, message='Количество ингридиента не может быть менее единицы.')
+            MinValueValidator(
+                1,
+                message='Количество ингридиента не может быть менее единицы.')
         ]
     )
 
     def __str__(self):
         return f'{self.ingredient.name} {self.ingredient.measurement_unit}'
-    
+
 
 class Favourite(models.Model):
     user = models.ForeignKey(
@@ -134,10 +139,10 @@ class Favourite(models.Model):
                 name='unique_userrecipes'
             ),
         ]
-    
+
     def __str__(self):
         return f'{self.recipe} в избранном {self.user}'
-    
+
 
 class ShoppingCart(models.Model):
     user = models.ForeignKey(
@@ -153,11 +158,11 @@ class ShoppingCart(models.Model):
 
     class Meta:
         constraints = [
-        models.UniqueConstraint(
-            fields=['user', 'recipe'],
-            name='unique_usershopping'
-        ),
-    ]
-    
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_usershopping'
+            ),
+        ]
+
     def __str__(self):
         return f'{self.user} добавил {self.recipe} в список покупок'

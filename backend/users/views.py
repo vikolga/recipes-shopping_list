@@ -3,7 +3,6 @@ from rest_framework import status
 
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 
@@ -12,16 +11,16 @@ from .serializers import UserCreateSerializer, UserSerializer
 from recipes.serializers import SubscribedSerializer
 from api.paginations import CustomPageNumberPaginator
 
-# Create your views here.
+
 class UserViewSet(UserViewSet):
     queryset = CustomUser.objects.all()
-    pagination_class = CustomPageNumberPaginator #Заменить паджинатор на кастомный с limit
-    
+    pagination_class = CustomPageNumberPaginator
+
     def get_serializer_class(self):
         if self.action == 'create':
             return UserCreateSerializer
         return UserSerializer
-    
+
     @action(detail=True,
             permission_classes=[IsAuthenticated],
             methods=['post', 'delete'])
@@ -45,7 +44,8 @@ class UserViewSet(UserViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         if request.method == 'DELETE':
             if Subscribed.objects.filter(user=user, author=author).exists():
-                get_object_or_404(Subscribed, user=user, author=author).delete()
+                get_object_or_404(Subscribed, user=user,
+                                  author=author).delete()
                 return Response(
                     {'message': 'Вы отписались от автора'},
                     status=status.HTTP_204_NO_CONTENT)
@@ -62,6 +62,5 @@ class UserViewSet(UserViewSet):
         authors = CustomUser.objects.filter(subscribing__user=user)
         serializer = SubscribedSerializer(self.paginate_queryset(authors),
                                           many=True,
-                                          context={'request':request})
+                                          context={'request': request})
         return self.get_paginated_response(serializer.data)
-

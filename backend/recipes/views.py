@@ -1,4 +1,3 @@
-from ipaddress import summarize_address_range
 from django.http import HttpResponse
 from rest_framework.response import Response
 from rest_framework import status
@@ -12,10 +11,11 @@ from rest_framework.decorators import action
 
 from api.permissions import AuthorOrReadOnly, AdminOrReadOnly
 from api.paginations import CustomPageNumberPaginator
-from .models import Tag, Ingredient, Recipe, ShoppingCart, Favourite, IngredientRecipes
+from .models import Tag, Ingredient, Recipe, ShoppingCart, Favourite
 from .serializers import (TagSerializer, IngredientSerializer,
                           RecipeSerializers, ShoppingCartSerializer,
-                          RecipeSubscribSerializer, FavoriteSerializer)
+                          RecipeSubscribSerializer, FavoriteSerializer,
+                          IngredientRecipes)
 
 
 class TagViewSet(ReadOnlyModelViewSet):
@@ -39,13 +39,12 @@ class RecipeViewSet(ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-
     @action(detail=True,
             permission_classes=[IsAuthenticated],
             url_path='shopping_cart', url_name='shopping_cart',
             methods=['post', 'delete'])
     def shopping_cart(self, request, pk):
-        user=request.user
+        user = request.user
         recipe = get_object_or_404(Recipe, id=pk)
         serializer = ShoppingCartSerializer(
             data={'user': user.id, 'recipe': recipe.id}
@@ -57,7 +56,8 @@ class RecipeViewSet(ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         if request.method == 'DELETE':
             if ShoppingCart.objects.filter(user=user, recipe__id=pk).exists():
-                get_object_or_404(ShoppingCart, user=user, recipe__id=pk).delete()
+                get_object_or_404(ShoppingCart,
+                                  user=user, recipe__id=pk).delete()
                 return Response(
                     {'message': 'Рецепт удален из избранного'},
                     status=status.HTTP_204_NO_CONTENT)
@@ -71,7 +71,31 @@ class RecipeViewSet(ModelViewSet):
             url_path='favorite', url_name='favorite',
             methods=['post', 'delete'])
     def favorite(self, request, pk):
-        user=request.user
+        # РЕЦЕПТ АВТОМАТИЧЕСКИ УХОДИТ В ИЗБРАЕННОЕ И ТАМ ОСТАЕТСЯ
+        user = request.user
+        recipe = get_object_or_404(Recipe, id=pk)
+        if request.method == 'POST':
+
+            if Favourite.objects.filter(user=user, recipe=recipe).exists():
+                return Response(
+                    {'errors': 'Вы уже подписаны на данного автора'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            serializer = FavoriteSerializer(recipe,
+                                            context={'request': request})
+            Favourite.objects.create(user=user, recipe=recipe)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        if request.method == 'DELETE':
+            if Favourite.objects.filter(user=user, recipe=recipe).exists():
+                get_object_or_404(Favourite, user=user, recipe=recipe).delete()
+                return Response(
+                    {'message': 'Вы отписались от автора'},
+                    status=status.HTTP_204_NO_CONTENT)
+            return Response(
+                {'error': 'Вы не подписаны на данного автора'},
+                status=status.HTTP_400_BAD_REQUEST)
+        return Response(status)
+        '''user=request.user
         recipe = get_object_or_404(Recipe, id=pk)
         serializer = FavoriteSerializer(
             data={'user': user.id, 'recipe': recipe.id}
@@ -90,11 +114,12 @@ class RecipeViewSet(ModelViewSet):
             return Response(
                 {'error': 'Рецепт не был добавлен в избранное'},
                 status=status.HTTP_400_BAD_REQUEST)
-        return Response(status)
-    
+        return Response(status)'''
+
     @action(detail=True,
             permission_classes=[IsAuthenticated],
-            url_path='download_shopping_cart', url_name='download_shopping_cart',
+            url_path='download_shopping_cart',
+            url_name='download_shopping_cart',
             methods=['get'])
     def download_shopping_cart(self, request):
         user = request.user
@@ -109,9 +134,10 @@ class RecipeViewSet(ModelViewSet):
             amounts=Sum('amount')
         )
         for i in enumerate(ingredients):
-            list_shopping +=(f'\n{i["ingredient__name"]} - '
-                             f'{i["amounts"]} {i["ingredient__measurement_unit"]}'
-                             )
+            list_shopping += (f'\n{i["ingredient__name"]} - '
+                              f'{i["amounts"]} '
+                              f'{i["ingredient__measurement_unit"]}'
+                              )
         file = 'shopping_cart'
         response = HttpResponse(list_shopping, 'Content-Type: application/pdf')
         response['Content-Disposition'] = f'attachment; filename="{file}.pdf"'
