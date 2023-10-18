@@ -1,7 +1,6 @@
 from rest_framework.serializers import SerializerMethodField
 from djoser.serializers import UserSerializer as UserDjoserSerializer
 from djoser.serializers import UserCreateSerializer
-from rest_framework.fields import SerializerMethodField
 
 from .models import Subscribed, CustomUser
 
@@ -20,7 +19,7 @@ class UserSerializer(UserDjoserSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ('id', 'username', 'email', 'first_name', 
+        fields = ('id', 'username', 'email', 'first_name',
                   'last_name', 'is_subscribed')
     # Посмотреть почему анониму не видно список всех пользователей
 

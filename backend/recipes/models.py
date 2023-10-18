@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, RegexValidator, MaxValueValidator
 from users.models import CustomUser
 
 
@@ -10,7 +10,13 @@ class Tag(models.Model):
     )
     color = models.CharField(
         max_length=7,
-        unique=True
+        unique=True,
+        validators=[
+            RegexValidator(
+                '^#([a-fA-F0-9]{6})',
+                message='Поле должно содержать HEX-код выбранного цвета.'
+            )
+        ]
     )
     slug = models.SlugField(
         max_length=200,
@@ -77,12 +83,12 @@ class Recipe(models.Model):
     ingredients = models.ManyToManyField(
         Ingredient,
         through='IngredientRecipes',
-        # through_fields=('recipe', 'ingredient'),
+        through_fields=('recipe', 'ingredient'),
         related_name='recipes'
     )
     name = models.CharField(max_length=200)
     image = models.ImageField(
-        # upload_to='recipes/image/',
+        upload_to='recipes/image/',
         null=True,
         default=None
     )
@@ -91,7 +97,11 @@ class Recipe(models.Model):
         validators=[
             MinValueValidator(
                 1,
-                message='Время приготовления не может быть менее 1 минуты.')
+                message='Время приготовления не может быть менее 1 минуты.'),
+            MaxValueValidator(
+                900,
+                message='Время приготовления не может быть больше 15 часов.'
+            )
         ]
     )
     pub_date = models.DateTimeField(auto_now_add=True)
@@ -124,7 +134,12 @@ class IngredientRecipes(models.Model):
         validators=[
             MinValueValidator(
                 1,
-                message='Количество ингридиента не может быть менее единицы.')
+                message='Количество ингредиента не может быть менее единицы.'
+            ),
+            MaxValueValidator(
+                900,
+                message='Ингредиент не может быть больше 900 единиц.'
+            )
         ]
     )
 

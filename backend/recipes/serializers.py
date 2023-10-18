@@ -120,24 +120,25 @@ class RecipeCreateUpdateSerializers(ModelSerializer):
         return obj
 
     def create(self, validated_data):
+        request = self.context.get('request')
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
-        author = self.context.get('request').user
-        recipe = Recipe.objects.create(author=author, **validated_data)
+        recipe = Recipe.objects.create(author=request.user, **validated_data)
+        recipe.tags.set(tags)
         for i in ingredients:
             ingredient = Ingredient.objects.get(id=i['id'])
             IngredientRecipes.objects.create(
                 ingredient=ingredient, recipe=recipe, amount=i['amount']
             )
-        recipe.tags.set(tags)
+        recipe.save()
         return recipe
 
-    def update(self, instance, validated_data):
-        pass
+    # def update(self, instance, validated_data):
+    #     pass
 
-    '''def to_representation(self, instance):
-        return RecipeListSerializers(instance,
-                                     context=self.context).data'''
+    # def to_representation(self, instance):
+    #     return RecipeListSerializers(instance,
+    #                                  context=self.context).data
 
 
 class ShoppingCartSerializer(ModelSerializer):
