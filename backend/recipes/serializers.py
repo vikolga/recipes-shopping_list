@@ -1,4 +1,6 @@
 from django.forms import ValidationError
+from django.db import transaction
+from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework.serializers import (ModelSerializer,
                                         SerializerMethodField, ReadOnlyField,
@@ -46,6 +48,7 @@ class IngredientRecipesSerializer(ModelSerializer):
 
 class IngredientRecipeCreateSerializer(ModelSerializer):
     id = IntegerField()
+    amount = IntegerField()
 
     class Meta:
         model = IngredientRecipes
@@ -61,9 +64,7 @@ class RecipeListSerializers(ModelSerializer):
     is_favorited = SerializerMethodField('get_is_favorited')
     is_in_shopping_cart = SerializerMethodField('get_is_in_shopping_cart',
                                                 read_only=True)
-    # добавляем информацию
     cooking_time = IntegerField()
-    # pub_date = DateTimeField(read_only=True)
 
     class Meta:
         model = Recipe
@@ -86,15 +87,14 @@ class RecipeListSerializers(ModelSerializer):
 
 class RecipeCreateUpdateSerializers(ModelSerializer):
     tags = PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True)
-    author = UserSerializer(read_only=True)
     image = Base64ImageField()
     ingredients = IngredientRecipeCreateSerializer(many=True,
-                                              )
+                                                   source='ingredient_used')
     cooking_time = IntegerField()
 
     class Meta:
         model = Recipe
-        fields = ('id', 'tags', 'author', 'ingredients',
+        fields = ('tags', 'ingredients',
                   'name', 'image', 'text', 'cooking_time')
 
     def validate(self, obj):
@@ -107,10 +107,13 @@ class RecipeCreateUpdateSerializers(ModelSerializer):
             raise ValidationError(
                 'Нужно указать минимум 1 тег.'
             )
-        if not obj.get('ingredients'):
-            raise ValidationError(
-                'Нужно указать минимум 1 ингредиент.'
-            )
+        ingredients_list = []
+        for ingredient in obj.get('recipe_used'):
+            if ingredient.get('amount') <= 0:
+                raise ValidationError(
+                    'Количество не может быть меньше 1'
+                )
+            ingredients_list.append(ingredient.get('id'))
         inrgedient_id_list = [item['id'] for item in obj.get('ingredients')]
         unique_ingredient_id_list = set(inrgedient_id_list)
         if len(inrgedient_id_list) != len(unique_ingredient_id_list):
@@ -119,26 +122,48 @@ class RecipeCreateUpdateSerializers(ModelSerializer):
             )
         return obj
 
+    @transaction.atomic
+    # def create(self, validated_data):
+    #     request = self.context.get('request')
+    #     ingredients = validated_data.pop('ingredients')
+    #     tags = validated_data.pop('tags')
+    #     recipe = Recipe.objects.create(author=request.user, **validated_data)
+    #     recipe.tags.set(tags)
+    #     for i in ingredients:
+    #         ingredient = Ingredient.objects.get(id=i['id'])
+    #         IngredientRecipes.objects.create(
+    #             ingredient=ingredient, recipe=recipe, amount=i['amount']
+    #         )
+    #     recipe.save()
+    #     return recipe
     def create(self, validated_data):
         request = self.context.get('request')
-        ingredients = validated_data.pop('ingredients')
+        ingredients = validated_data.pop('recipe_used')
         tags = validated_data.pop('tags')
         recipe = Recipe.objects.create(author=request.user, **validated_data)
         recipe.tags.set(tags)
-        for i in ingredients:
-            ingredient = Ingredient.objects.get(id=i['id'])
-            IngredientRecipes.objects.create(
-                ingredient=ingredient, recipe=recipe, amount=i['amount']
+        ingredient_list = []
+        for ingredient in ingredients:
+            current_ingredient = get_object_or_404(Ingredient,
+                                                   id=ingredient.get('id'))
+            amount = ingredient.get('amount')
+            ingredient_list.append(
+                IngredientRecipes(
+                    recipe=recipe,
+                    ingredient=current_ingredient,
+                    amount=amount
+                )
             )
-        recipe.save()
+        IngredientRecipes.objects.bulk_create(ingredient_list)
         return recipe
 
     # def update(self, instance, validated_data):
     #     pass
 
-    # def to_representation(self, instance):
-    #     return RecipeListSerializers(instance,
-    #                                  context=self.context).data
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        return RecipeListSerializers(instance,
+                                     context={'request': request}).data
 
 
 class ShoppingCartSerializer(ModelSerializer):
