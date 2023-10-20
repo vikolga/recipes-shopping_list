@@ -55,7 +55,7 @@ class IngredientRecipeCreateSerializer(ModelSerializer):
         fields = ('id', 'amount')
 
 
-class RecipeListSerializers(ModelSerializer):
+class RecipeListSerializer(ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     author = UserSerializer(read_only=True)
     image = Base64ImageField()
@@ -85,7 +85,7 @@ class RecipeListSerializers(ModelSerializer):
         return ShoppingCart.objects.filter(user=user, recipe=obj).exists()
 
 
-class RecipeCreateUpdateSerializers(ModelSerializer):
+class RecipeCreateUpdateSerializer(ModelSerializer):
     tags = PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True)
     image = Base64ImageField()
     ingredients = IngredientRecipeCreateSerializer(many=True,
@@ -247,3 +247,4 @@ class FavoriteSerializer(ModelSerializer):
         recipe = validated_data.get('recipe')
         Favourite.objects.get_or_create(user=user, recipe=recipe)
         return validated_data
+    

@@ -11,12 +11,12 @@ from rest_framework.decorators import action
 
 from api.permissions import AuthorOrReadOnly, AdminOrReadOnly
 from api.paginations import CustomPageNumberPaginator
-from api.filters import IngredientFilter
-from .models import Tag, Ingredient, Recipe, ShoppingCart, Favourite
+from api.filters import IngredientFilter, RecipeFilter
+from .models import Tag, Ingredient, Recipe, ShoppingCart, Favourite, IngredientRecipes
 from .serializers import (TagSerializer, IngredientSerializer,
-                          RecipeListSerializers, ShoppingCartSerializer,
+                          RecipeListSerializer, ShoppingCartSerializer,
                           RecipeSubscribSerializer, FavoriteSerializer,
-                          IngredientRecipes, RecipeCreateUpdateSerializers)
+                          IngredientRecipesSerializer, RecipeCreateUpdateSerializer)
 
 
 class TagViewSet(ReadOnlyModelViewSet):
@@ -29,24 +29,35 @@ class IngredientViewSet(ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (AdminOrReadOnly,)
+    filter_backends = (DjangoFilterBackend,)
     filterset_class = IngredientFilter
 
 
 class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
     # serializer_class = RecipeCreateUpdateSerializers
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
     pagination_class = CustomPageNumberPaginator
-    filter_backends = [filters.SearchFilter]
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend,]
     search_fields = ['^ingredients',]
+    filterset_class = RecipeFilter
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
     def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return RecipeListSerializers
-        return RecipeCreateUpdateSerializers
+        if self.action == 'list' or 'retrieve':
+            return RecipeListSerializer
+        elif self.action == 'create' or 'update':
+            return RecipeCreateUpdateSerializer
+    
+    def get_permissions(self):
+        if self.action == 'update' or 'destroy':
+            return (AuthorOrReadOnly(), AdminOrReadOnly(), )
+        if self.action == 'create':
+            return (IsAuthenticated(), )
+        
+
 
     @action(detail=True,
             permission_classes=[IsAuthenticated],
@@ -77,20 +88,23 @@ class RecipeViewSet(ModelViewSet):
 
     @action(detail=True,
             permission_classes=[IsAuthenticated],
-            url_path='favorite', url_name='favorite',
             methods=['post', 'delete'])
     def favorite(self, request, pk):
         user = request.user
-        recipe = get_object_or_404(Recipe, id=pk)
+        
         if request.method == 'POST':
-            serializer = FavoriteSerializer(
-                data={'user': user.id, 'recipe': recipe.id}
-            )
-            serializer.is_valid(raise_exception=True)
-            serializer.save(recipe=recipe, user=request.user)
+            # serializer = FavoriteSerializer(
+            #     data={'user': user.id, 'recipe': recipe.id},
+            #     context={'request': request}
+            # )
+            # serializer.is_valid(raise_exception=True)
+            # serializer.save()
+            recipe = get_object_or_404(Recipe, id=pk)
+            Favourite.objects.create(user=user, recipe=recipe)
             serializer = RecipeSubscribSerializer(recipe)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         if request.method == 'DELETE':
+            recipe = get_object_or_404(Recipe, id=pk)
             if Favourite.objects.filter(user=user, recipe__id=pk).exists():
                 get_object_or_404(Favourite, user=user, recipe__id=pk).delete()
                 return Response(
