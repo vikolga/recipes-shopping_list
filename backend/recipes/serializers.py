@@ -178,7 +178,19 @@ class RecipeCreateUpdateSerializer(ModelSerializer):
 
     @transaction.atomic
     def update(self, instance, validated_data):
-        pass
+        context = self.context['request']
+        ingredient = validated_data.pop('ingredient_used')
+        recipe = instance
+        IngredientRecipes.objects.filter(recipe=recipe).delete()
+        current_ingredients = context.data['ingredients']
+        for ingredient in current_ingredients:
+            current_ingredient = Ingredient.objects.get(id=ingredient['id'])
+            IngredientRecipes.objects.create(
+                recipe=recipe,
+                ingredient=current_ingredient,
+                amount=ingredient['amount'],
+            )
+        return super().update(instance, validated_data)
 
     def to_representation(self, instance):
         request = self.context.get('request')
