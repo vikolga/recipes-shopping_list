@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.http import HttpResponse
 from rest_framework.response import Response
 from rest_framework import status, filters
@@ -105,34 +106,28 @@ class RecipeViewSet(ModelViewSet):
         return Response(status)
 
     @action(detail=False,
-            permission_classes=[IsAuthenticated])
-    def download_shopping_cart(self, request, **kwargs):
+            permission_classes=[IsAuthenticated],)
+    def download_shopping_cart(self, request):
         user = request.user
         if user.is_anonymous:
             return Response(
                 {'error': 'Учетные данные не были предоставлены.'},
                 status=status.HTTP_401_UNAUTHORIZED)
-        list_shopping = 'Список покупок: '
+        
         ingredients = IngredientRecipes.objects.filter(
             recipe__shopping_cart__user=user
         ).values('ingredient__name', 'ingredient__measurement_unit').annotate(
-            amounts=Sum('amount')
+            amount=Sum('amount')
         )
-        for i in enumerate(ingredients):
-            list_shopping += (f'\n{i["ingredient__name"]} - '
-                              f'{i["amounts"]} '
-                              f'{i["ingredient__measurement_unit"]}'
-                              )
-        file = 'shopping_cart'
+        today = datetime.today()
+        list_shopping = (f'Список покупок: {today:%Y.%m.%d, %H:%M}\n')
+        list_shopping += '\n'.join([
+            f'- {ingredient["ingredient__name"]}, '
+            f'{ingredient["ingredient__measurement_unit"]}: '
+            f'{ingredient["amount"]}'
+            for ingredient in ingredients
+        ])
+        file = 'shopping_cart.txt'
         response = HttpResponse(list_shopping, content_type='text/plain')
         response['Content-Disposition'] = f'attachment; filename={file}'
         return response
-
-    # def create(self, request, *args, **kwargs):
-    #     serializer = RecipeCreateUpdateSerializer(data=request.data)
-    #     if serializer.is_valid(raise_exception=True):
-    #         serializer.save()
-    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    #     return Response(
-    #             {'error': 'Ошибка в создании рецепта'},
-    #             status=status.HTTP_400_BAD_REQUEST)
