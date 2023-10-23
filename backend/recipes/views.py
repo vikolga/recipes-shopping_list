@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Sum
 from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
 
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
 from rest_framework.decorators import action
 
 from api.permissions import AuthorOrReadOnly, AdminOrReadOnly
@@ -35,33 +35,28 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 
 class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
-    # serializer_class = RecipeCreateUpdateSerializers
-    # permission_classes = (IsAuthenticated,)
+    serializer = RecipeCreateUpdateSerializer
     pagination_class = CustomPageNumberPaginator
-    filter_backends = [filters.SearchFilter, DjangoFilterBackend,]
+    filter_backends = (filters.SearchFilter, DjangoFilterBackend, )
     search_fields = ['^ingredients',]
     filterset_class = RecipeFilter
+
+    def get_serializer_class(self):
+        if self.request.method in SAFE_METHODS:
+            return RecipeListSerializer
+        return RecipeCreateUpdateSerializer
+
+    def get_permissions(self):
+        if self.action == 'update' or 'destroy':
+            return (AuthorOrReadOnly(), )
+        if self.action == 'create':
+            return (IsAuthenticated(), )
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    def get_serializer_class(self):
-        if self.action == 'list' or 'retrieve':
-            return RecipeListSerializer
-        elif self.action == 'create' or 'update':
-            return RecipeCreateUpdateSerializer
-    
-    def get_permissions(self):
-        if self.action == 'update' or 'destroy':
-            return (AuthorOrReadOnly(), AdminOrReadOnly(), )
-        if self.action == 'create':
-            return (IsAuthenticated(), )
-        
-
-
     @action(detail=True,
             permission_classes=[IsAuthenticated],
-            url_path='shopping_cart', url_name='shopping_cart',
             methods=['post', 'delete'])
     def shopping_cart(self, request, pk):
         user = request.user
@@ -93,12 +88,6 @@ class RecipeViewSet(ModelViewSet):
         user = request.user
         
         if request.method == 'POST':
-            # serializer = FavoriteSerializer(
-            #     data={'user': user.id, 'recipe': recipe.id},
-            #     context={'request': request}
-            # )
-            # serializer.is_valid(raise_exception=True)
-            # serializer.save()
             recipe = get_object_or_404(Recipe, id=pk)
             Favourite.objects.create(user=user, recipe=recipe)
             serializer = RecipeSubscribSerializer(recipe)
@@ -115,11 +104,8 @@ class RecipeViewSet(ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST)
         return Response(status)
 
-    @action(detail=True,
-            permission_classes=[IsAuthenticated],
-            url_path='download_shopping_cart',
-            url_name='download_shopping_cart',
-            methods=['get'])
+    @action(detail=False,
+            permission_classes=[IsAuthenticated])
     def download_shopping_cart(self, request, **kwargs):
         user = request.user
         if user.is_anonymous:
@@ -138,6 +124,15 @@ class RecipeViewSet(ModelViewSet):
                               f'{i["ingredient__measurement_unit"]}'
                               )
         file = 'shopping_cart'
-        response = HttpResponse(list_shopping, 'Content-Type: application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="{file}.pdf"'
+        response = HttpResponse(list_shopping, content_type='text/plain')
+        response['Content-Disposition'] = f'attachment; filename={file}'
         return response
+
+    # def create(self, request, *args, **kwargs):
+    #     serializer = RecipeCreateUpdateSerializer(data=request.data)
+    #     if serializer.is_valid(raise_exception=True):
+    #         serializer.save()
+    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #     return Response(
+    #             {'error': 'Ошибка в создании рецепта'},
+    #             status=status.HTTP_400_BAD_REQUEST)

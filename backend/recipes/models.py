@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import MinValueValidator, RegexValidator, MaxValueValidator
+from django.core.validators import MinValueValidator, MinLengthValidator, RegexValidator, MaxValueValidator
 from users.models import CustomUser
 
 
@@ -73,7 +73,13 @@ class Recipe(models.Model):
     tags = models.ManyToManyField(
         Tag,
         through=TagRecipes,
-        related_name='recipes'
+        related_name='recipes',
+        validators=[
+            MinLengthValidator(
+                1,
+                message='Должен быть хотя бы один тег.'
+            ),
+        ]
     )
     author = models.ForeignKey(
         CustomUser,
@@ -84,7 +90,13 @@ class Recipe(models.Model):
         Ingredient,
         through='IngredientRecipes',
         through_fields=('recipe', 'ingredient'),
-        related_name='recipes'
+        related_name='recipes',
+        validators=[
+            MinLengthValidator(
+                1,
+                message='Должен быть хотя бы один ингредиент'
+            ),
+        ]
     )
     name = models.CharField(max_length=200)
     image = models.ImageField(
