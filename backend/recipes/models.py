@@ -1,9 +1,12 @@
 from django.db import models
-from django.core.validators import MinValueValidator, MinLengthValidator, RegexValidator, MaxValueValidator
+from django.core.validators import (MinValueValidator, MinLengthValidator,
+                                    RegexValidator, MaxValueValidator)
+
 from users.models import CustomUser
 
 
 class Tag(models.Model):
+    '''Модель тегов.'''
     name = models.CharField(
         max_length=200,
         unique=True
@@ -25,6 +28,8 @@ class Tag(models.Model):
     )
 
     class Meta:
+        verbose_name_plural = 'Теги'
+        verbose_name = 'Тег'
         constraints = [
             models.UniqueConstraint(
                 fields=['name', 'color'],
@@ -37,6 +42,7 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
+    '''Модель ингредиентов.'''
     name = models.CharField(
         max_length=200,
     )
@@ -45,8 +51,9 @@ class Ingredient(models.Model):
     )
 
     class Meta:
+        verbose_name_plural = 'Ингредиенты'
+        verbose_name = 'Ингредиент'
         ordering = ['name',]
-        # уточнить поиск по частичному вхождению в начале названия ингредиента
         constraints = [
             models.UniqueConstraint(
                 fields=['name', 'measurement_unit'],
@@ -59,6 +66,7 @@ class Ingredient(models.Model):
 
 
 class TagRecipes(models.Model):
+    '''Промежуточная модель тегов в рецептах.'''
     recipe = models.ForeignKey(
         'Recipe',
         on_delete=models.CASCADE,
@@ -70,6 +78,7 @@ class TagRecipes(models.Model):
 
 
 class Recipe(models.Model):
+    '''Модель рецептов.'''
     tags = models.ManyToManyField(
         Tag,
         through=TagRecipes,
@@ -119,6 +128,8 @@ class Recipe(models.Model):
     pub_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        verbose_name_plural = 'Рецепты'
+        verbose_name = 'Рецепт'
         ordering = ['-pub_date',]
         constraints = [
             models.UniqueConstraint(
@@ -132,6 +143,7 @@ class Recipe(models.Model):
 
 
 class IngredientRecipes(models.Model):
+    '''промежуточная модель ингредиентов в рецептах.'''
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
@@ -160,6 +172,7 @@ class IngredientRecipes(models.Model):
 
 
 class Favourite(models.Model):
+    '''Модель избранного.'''
     user = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
@@ -172,6 +185,8 @@ class Favourite(models.Model):
     )
 
     class Meta:
+        verbose_name_plural = 'Избранное'
+        verbose_name = 'Избранное'
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'recipe'],
@@ -184,6 +199,7 @@ class Favourite(models.Model):
 
 
 class ShoppingCart(models.Model):
+    '''Модель списка покупок.'''
     user = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
@@ -196,6 +212,8 @@ class ShoppingCart(models.Model):
     )
 
     class Meta:
+        verbose_name_plural = 'Списки покупок'
+        verbose_name = 'Список покупок'
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'recipe'],

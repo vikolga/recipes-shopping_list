@@ -2,10 +2,9 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 
-# Create your models here.
 class CustomUser(AbstractUser):
     """Кастомная модель пользователя от AbstractUser"""
-    
+
     username = models.CharField(
         max_length=150,
         unique=True
@@ -29,6 +28,8 @@ class CustomUser(AbstractUser):
     )
 
     class Meta:
+        verbose_name_plural = 'Пользователи'
+        verbose_name = 'Пользователь'
         ordering = ['username',]
 
     def __str__(self) -> str:
@@ -49,12 +50,14 @@ class Subscribed(models.Model):
     )
 
     class Meta:
+        verbose_name_plural = 'Подписки'
+        verbose_name = 'Подписка'
         constraints = [
             models.UniqueConstraint(
                 fields=['author', 'user'],
                 name='unique_subscrib'
             ),
         ]
-    
+
     def __str__(self) -> str:
         return f'Подписчик {self.user}, автор {self.author}'

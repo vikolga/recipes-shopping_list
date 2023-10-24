@@ -11,11 +11,13 @@ class TagAdmin(admin.ModelAdmin):
 class IngredientAdmin(admin.ModelAdmin):
     """Модель администратора для ингредиентов"""
     list_display = ('id', 'name', 'measurement_unit')
+    # list_filter = ('name')
 
 
 class IngredientInline(admin.TabularInline):
     model = IngredientRecipes
     extra = 3
+    list_filter = ('name')
 
 
 class TagInline(admin.TabularInline):
@@ -25,8 +27,14 @@ class TagInline(admin.TabularInline):
 
 class RecipeAdmin(admin.ModelAdmin):
     """ Модель администратора для рецептов"""
-    list_display = ('id', 'author', 'name', 'text', 'cooking_time')
+    list_display = ('id', 'author', 'name', 'cooking_time', 'is_favorite')
     inlines = (IngredientInline, TagInline,)
+    list_filter = ('name', 'author', 'tags')
+
+    def is_favorite(self, obj):
+        return obj.favouriting.count()
+
+    is_favorite.short_description = 'Избранное'
 
 
 class FavouriteAdmin(admin.ModelAdmin):

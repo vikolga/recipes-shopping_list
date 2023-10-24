@@ -6,6 +6,7 @@ from .models import Subscribed, CustomUser
 
 
 class UserSerializer(UserDjoserSerializer):
+    '''Сериализатор для вывода модели кастомного пользователя.'''
     is_subscribed = SerializerMethodField(
         'get_is_subscribed',
         read_only=True
@@ -21,11 +22,10 @@ class UserSerializer(UserDjoserSerializer):
         model = CustomUser
         fields = ('id', 'username', 'email', 'first_name',
                   'last_name', 'is_subscribed')
-    # Посмотреть почему анониму не видно список всех пользователей
 
 
 class UserCreateSerializer(UserCreateSerializer):
+    '''Сериализатор для создания пользователя.'''
     class Meta:
         model = CustomUser
         fields = ('email', 'username', 'first_name', 'last_name', 'password')
-

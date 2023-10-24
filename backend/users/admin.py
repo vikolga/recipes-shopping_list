@@ -1,10 +1,13 @@
 from django.contrib import admin
+
 from .models import Subscribed, CustomUser
 
-# Register your models here.
+
 class CustomUserAdmin(admin.ModelAdmin):
     """ Модель администратора для пользователя """
-    list_display = ('id', 'username', 'email', 'password', 'first_name', 'last_name')
+    list_display = ('id', 'username', 'email', 'password',
+                    'first_name', 'last_name')
+    list_filter = ('username', 'email')
 
 
 class SubscribedAdmin(admin.ModelAdmin):

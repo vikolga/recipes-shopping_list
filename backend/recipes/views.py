@@ -1,32 +1,34 @@
 from datetime import datetime
-from django.http import HttpResponse
-from rest_framework.response import Response
 from rest_framework import status, filters
+
+from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from django.db.models import Sum
+from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
-
 from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
 from rest_framework.decorators import action
 
 from api.permissions import AuthorOrReadOnly, AdminOrReadOnly
 from api.paginations import CustomPageNumberPaginator
 from api.filters import IngredientFilter, RecipeFilter
-from .models import Tag, Ingredient, Recipe, ShoppingCart, Favourite, IngredientRecipes
-from .serializers import (TagSerializer, IngredientSerializer,
+from .models import (Tag, Ingredient, Recipe, ShoppingCart,
+                     Favourite, IngredientRecipes)
+from .serializers import (RecipeCreateUpdateSerializer, IngredientSerializer,
                           RecipeListSerializer, ShoppingCartSerializer,
-                          RecipeSubscribSerializer, FavoriteSerializer,
-                          IngredientRecipesSerializer, RecipeCreateUpdateSerializer)
+                          RecipeSubscribSerializer, TagSerializer)
 
 
 class TagViewSet(ReadOnlyModelViewSet):
+    '''Вьюсет обработки запроса тегов.'''
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = (AdminOrReadOnly,)
 
 
 class IngredientViewSet(ReadOnlyModelViewSet):
+    '''Вьюсет обработки запроса ингредиентов.'''
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (AdminOrReadOnly,)
@@ -35,6 +37,7 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 
 
 class RecipeViewSet(ModelViewSet):
+    '''Вьюсет обработки запроса рецептов.'''
     queryset = Recipe.objects.all()
     serializer = RecipeCreateUpdateSerializer
     pagination_class = CustomPageNumberPaginator
@@ -75,10 +78,10 @@ class RecipeViewSet(ModelViewSet):
                 get_object_or_404(ShoppingCart,
                                   user=user, recipe__id=pk).delete()
                 return Response(
-                    {'message': 'Рецепт удален из избранного'},
+                    {'message': 'Рецепт удален из избранного.'},
                     status=status.HTTP_204_NO_CONTENT)
             return Response(
-                {'error': 'Рецепт не был добавлен в избранное'},
+                {'error': 'Рецепт не был добавлен в избранное.'},
                 status=status.HTTP_400_BAD_REQUEST)
         return Response(status)
 
@@ -87,7 +90,6 @@ class RecipeViewSet(ModelViewSet):
             methods=['post', 'delete'])
     def favorite(self, request, pk):
         user = request.user
-        
         if request.method == 'POST':
             recipe = get_object_or_404(Recipe, id=pk)
             Favourite.objects.create(user=user, recipe=recipe)
@@ -98,10 +100,10 @@ class RecipeViewSet(ModelViewSet):
             if Favourite.objects.filter(user=user, recipe__id=pk).exists():
                 get_object_or_404(Favourite, user=user, recipe__id=pk).delete()
                 return Response(
-                    {'message': 'Рецепт удален из избранного'},
+                    {'message': 'Рецепт удален из избранного.'},
                     status=status.HTTP_204_NO_CONTENT)
             return Response(
-                {'error': 'Рецепт не был добавлен в избранное'},
+                {'error': 'Рецепт не был добавлен в избранное.'},
                 status=status.HTTP_400_BAD_REQUEST)
         return Response(status)
 
@@ -113,17 +115,17 @@ class RecipeViewSet(ModelViewSet):
             return Response(
                 {'error': 'Учетные данные не были предоставлены.'},
                 status=status.HTTP_401_UNAUTHORIZED)
-        
         ingredients = IngredientRecipes.objects.filter(
             recipe__shopping_cart__user=user
         ).values('ingredient__name', 'ingredient__measurement_unit').annotate(
             amount=Sum('amount')
         )
-        today = datetime.today()
-        list_shopping = (f'Список покупок: {today:%Y.%m.%d, %H:%M}\n')
+        data_shopping_cart = datetime.today()
+        list_shopping = (f'Список покупок из рецептов от'
+                         f'{data_shopping_cart:%d.%m.%Y}\n')
         list_shopping += '\n'.join([
-            f'- {ingredient["ingredient__name"]}, '
-            f'{ingredient["ingredient__measurement_unit"]}: '
+            f'- {ingredient["ingredient__name"]}'
+            f'({ingredient["ingredient__measurement_unit"]}) : '
             f'{ingredient["amount"]}'
             for ingredient in ingredients
         ])

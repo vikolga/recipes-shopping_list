@@ -13,6 +13,7 @@ from api.paginations import CustomPageNumberPaginator
 
 
 class UserViewSet(UserViewSet):
+    '''Вьюсет обработки запроса пользователей.'''
     queryset = CustomUser.objects.all()
     pagination_class = CustomPageNumberPaginator
 
@@ -30,12 +31,12 @@ class UserViewSet(UserViewSet):
         if request.method == 'POST':
             if author == request.user:
                 return Response(
-                    {'errors': 'Вы пытаетесь подписаться на себя'},
+                    {'errors': 'Вы пытаетесь подписаться на себя.'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
             if Subscribed.objects.filter(user=user, author=author).exists():
                 return Response(
-                    {'errors': 'Вы уже подписаны на данного автора'},
+                    {'errors': 'Вы уже подписаны на данного автора.'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
             serializer = SubscribedSerializer(author,
@@ -47,10 +48,10 @@ class UserViewSet(UserViewSet):
                 get_object_or_404(Subscribed, user=user,
                                   author=author).delete()
                 return Response(
-                    {'message': 'Вы отписались от автора'},
+                    {'message': 'Вы отписались от автора.'},
                     status=status.HTTP_204_NO_CONTENT)
             return Response(
-                {'error': 'Вы не подписаны на данного автора'},
+                {'error': 'Вы не подписаны на данного автора.'},
                 status=status.HTTP_400_BAD_REQUEST)
         return Response(status)
 
