@@ -10,7 +10,7 @@ class UserSerializer(UserDjoserSerializer):
     is_subscribed = SerializerMethodField(
         'get_is_subscribed',
         read_only=True
-        )
+    )
 
     def get_is_subscribed(self, obj):
         user = self.context['request'].user
