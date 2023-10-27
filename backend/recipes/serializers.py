@@ -111,7 +111,7 @@ class RecipeCreateUpdateSerializer(ModelSerializer):
         if not ingredients:
             raise ValidationError(
                 {'Добавьте хотя бы один ингридиент.'}
-                )
+            )
         ingredients_list = []
         for ingredient in ingredients:
             current_ingredient = get_object_or_404(Ingredient,
@@ -121,7 +121,7 @@ class RecipeCreateUpdateSerializer(ModelSerializer):
             if int(ingredient['amount']) < 1:
                 raise ValidationError(
                     {'Должна быть хотя бы 1 единица ингредиента.'}
-                    )
+                )
             ingredients_list.append(current_ingredient)
         return value
 
@@ -191,7 +191,7 @@ class ShoppingCartSerializer(ModelSerializer):
         if ShoppingCart.objects.filter(user=user, recipe__id=recipe).exists():
             raise ValidationError(
                 {'Рецепт уже был добавлен в список покупок.'}
-                )
+            )
         return data
 
     def create(self, validated_data):
