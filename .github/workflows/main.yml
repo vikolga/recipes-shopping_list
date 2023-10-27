@@ -93,7 +93,7 @@ jobs:
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
             cd infra
-            sudo docker-compose down
+            sudo docker compose down
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
             touch .env
@@ -101,5 +101,5 @@ jobs:
             echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
             echo DB_HOST=${{ secrets.DB_HOST }} 
             echo DB_PORT=${{ secrets.DB_PORT }} 
-            sudo docker-compose up -d
-            
+            sudo docker compose up -d
+
