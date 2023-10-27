@@ -53,7 +53,7 @@ class Ingredient(models.Model):
     class Meta:
         verbose_name_plural = 'Ингредиенты'
         verbose_name = 'Ингредиент'
-        ordering = ['name',]
+        ordering = ['name', ]
         constraints = [
             models.UniqueConstraint(
                 fields=['name', 'measurement_unit'],
@@ -130,7 +130,7 @@ class Recipe(models.Model):
     class Meta:
         verbose_name_plural = 'Рецепты'
         verbose_name = 'Рецепт'
-        ordering = ['-pub_date',]
+        ordering = ['-pub_date', ]
         constraints = [
             models.UniqueConstraint(
                 fields=['name', 'author'],

@@ -42,7 +42,7 @@ class RecipeViewSet(ModelViewSet):
     serializer = RecipeCreateUpdateSerializer
     pagination_class = CustomPageNumberPaginator
     filter_backends = (filters.SearchFilter, DjangoFilterBackend, )
-    search_fields = ['^ingredients',]
+    search_fields = ['^ingredients', ]
     filterset_class = RecipeFilter
 
     def get_serializer_class(self):
