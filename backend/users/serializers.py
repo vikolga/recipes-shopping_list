@@ -1,6 +1,3 @@
-from django.forms import ValidationError
-from requests import Response
-from rest_framework import status
 from rest_framework.serializers import SerializerMethodField
 from djoser.serializers import UserSerializer as UserDjoserSerializer
 from djoser.serializers import UserCreateSerializer
@@ -9,7 +6,7 @@ from .models import Subscriber, CustomUser
 
 
 class UserSerializer(UserDjoserSerializer):
-    '''Сериализатор для вывода модели кастомного пользователя.'''
+    """Сериализатор для вывода модели кастомного пользователя."""
     is_subscribed = SerializerMethodField(
         'get_is_subscribed',
         read_only=True
@@ -17,13 +14,8 @@ class UserSerializer(UserDjoserSerializer):
 
     def get_is_subscribed(self, obj):
         user = self.context['request'].user
-        author = self.context['request'].author
         if user.is_anonymous:
             return False
-        if author == user:
-            raise ValidationError({'Вы пытаетесь подписаться на себя.'})
-        if Subscriber.objects.filter(user=user, author=author).exists():
-            raise ValidationError({'Вы уже подписаны на данного автора.'})
         return Subscriber.objects.filter(user=user, author=obj).exists()
 
     class Meta:
@@ -33,7 +25,7 @@ class UserSerializer(UserDjoserSerializer):
 
 
 class UserCreateSerializer(UserCreateSerializer):
-    '''Сериализатор для создания пользователя.'''
+    """Сериализатор для создания пользователя."""
     class Meta:
         model = CustomUser
         fields = ('email', 'username', 'first_name', 'last_name', 'password')
