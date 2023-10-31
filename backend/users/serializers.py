@@ -2,7 +2,7 @@ from rest_framework.serializers import SerializerMethodField
 from djoser.serializers import UserSerializer as UserDjoserSerializer
 from djoser.serializers import UserCreateSerializer
 
-from .models import Subscribed, CustomUser
+from .models import Subscriber, CustomUser
 
 
 class UserSerializer(UserDjoserSerializer):
@@ -16,7 +16,7 @@ class UserSerializer(UserDjoserSerializer):
         user = self.context['request'].user
         if user.is_anonymous:
             return False
-        return Subscribed.objects.filter(user=user, author=obj).exists()
+        return Subscriber.objects.filter(user=user, author=obj).exists()
 
     class Meta:
         model = CustomUser

@@ -1,12 +1,11 @@
 from rest_framework.response import Response
 from rest_framework import status
-
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 
-from .models import CustomUser, Subscribed
+from .models import CustomUser, Subscriber
 from .serializers import UserCreateSerializer, UserSerializer
 from recipes.serializers import SubscribedSerializer
 from api.paginations import CustomPageNumberPaginator
@@ -34,18 +33,18 @@ class UserViewSet(UserViewSet):
                     {'errors': 'Вы пытаетесь подписаться на себя.'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            if Subscribed.objects.filter(user=user, author=author).exists():
+            if Subscriber.objects.filter(user=user, author=author).exists():
                 return Response(
                     {'errors': 'Вы уже подписаны на данного автора.'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
             serializer = SubscribedSerializer(author,
                                               context={'request': request})
-            Subscribed.objects.create(user=user, author=author)
+            Subscriber.objects.create(user=user, author=author)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         if request.method == 'DELETE':
-            if Subscribed.objects.filter(user=user, author=author).exists():
-                get_object_or_404(Subscribed, user=user,
+            if Subscriber.objects.filter(user=user, author=author).exists():
+                get_object_or_404(Subscriber, user=user,
                                   author=author).delete()
                 return Response(
                     {'message': 'Вы отписались от автора.'},

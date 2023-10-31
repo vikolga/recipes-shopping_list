@@ -1,7 +1,6 @@
 from django.forms import ValidationError
 from django.db import transaction
 from django.shortcuts import get_object_or_404
-
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import (ModelSerializer,
@@ -9,7 +8,7 @@ from rest_framework.serializers import (ModelSerializer,
                                         PrimaryKeyRelatedField, IntegerField)
 
 from users.serializers import UserSerializer
-from users.models import CustomUser, Subscribed
+from users.models import CustomUser, Subscriber
 from .models import (Tag, Ingredient, Recipe, IngredientRecipes,
                      ShoppingCart, Favourite)
 
@@ -226,7 +225,7 @@ class SubscribedSerializer(UserSerializer):
     def validate(self, data):
         user = self.context.get('request').user
         author = self.context.get('request').author
-        if Subscribed.objects.filter(author=author, user=user).exists():
+        if Subscriber.objects.filter(author=author, user=user).exists():
             raise ValidationError('Вы подписаны на данного пользователя.')
         if user == author:
             raise ValidationError('Подписаться на самого себя нельзя.')
