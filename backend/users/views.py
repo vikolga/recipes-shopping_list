@@ -28,16 +28,16 @@ class UserViewSet(UserViewSet):
         user = request.user
         author = get_object_or_404(CustomUser, id=self.kwargs.get('id'))
         if request.method == 'POST':
-            if author == request.user:
-                return Response(
-                    {'errors': 'Вы пытаетесь подписаться на себя.'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            if Subscriber.objects.filter(user=user, author=author).exists():
-                return Response(
-                    {'errors': 'Вы уже подписаны на данного автора.'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+            # if author == request.user:
+            #     return Response(
+            #         {'errors': 'Вы пытаетесь подписаться на себя.'},
+            #         status=status.HTTP_400_BAD_REQUEST
+            #     )
+            # if Subscriber.objects.filter(user=user, author=author).exists():
+            #     return Response(
+            #         {'errors': 'Вы уже подписаны на данного автора.'},
+            #         status=status.HTTP_400_BAD_REQUEST
+            #     )
             serializer = SubscribedSerializer(author,
                                               context={'request': request})
             Subscriber.objects.create(user=user, author=author)
