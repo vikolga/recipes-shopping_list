@@ -14,28 +14,28 @@ from .models import (Tag, Ingredient, Recipe, IngredientRecipes,
 
 
 class TagSerializer(ModelSerializer):
-    '''Сериализатор тегов.'''
+    """Сериализатор тегов."""
     class Meta:
         model = Tag
         fields = '__all__'
 
 
 class IngredientSerializer(ModelSerializer):
-    '''Сериализатор ингредиентов.'''
+    """Сериализатор ингредиентов."""
     class Meta:
         model = Ingredient
         fields = '__all__'
 
 
 class RecipeSubscribSerializer(ModelSerializer):
-    '''Сериализатор рецепта короткого вида.'''
+    """Сериализатор рецепта короткого вида."""
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
 
 
 class IngredientRecipesSerializer(ModelSerializer):
-    '''Сериализатор промежуточной модели ингредиентов в рецептах.'''
+    """Сериализатор промежуточной модели ингредиентов в рецептах."""
     id = PrimaryKeyRelatedField(
         queryset=Ingredient.objects.all(),
         source='ingredient.id')
@@ -48,8 +48,8 @@ class IngredientRecipesSerializer(ModelSerializer):
 
 
 class IngredientRecipeCreateSerializer(ModelSerializer):
-    '''Сериализатор промежуточной модели ингредиентов в рецептах
-    для создания рецепта.'''
+    """Сериализатор промежуточной модели ингредиентов в рецептах
+    для создания рецепта."""
     id = IntegerField()
 
     class Meta:
@@ -58,7 +58,7 @@ class IngredientRecipeCreateSerializer(ModelSerializer):
 
 
 class RecipeListSerializer(ModelSerializer):
-    '''Сериализатор вывода списка рецептов.'''
+    """Сериализатор вывода списка рецептов."""
     tags = TagSerializer(many=True, read_only=True)
     author = UserSerializer(read_only=True)
     image = Base64ImageField()
@@ -88,7 +88,7 @@ class RecipeListSerializer(ModelSerializer):
 
 
 class RecipeCreateUpdateSerializer(ModelSerializer):
-    '''Сериализатор создания и редактуры рецепта.'''
+    """Сериализатор создания и редактуры рецепта."""
     tags = PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True)
     image = Base64ImageField()
     ingredients = IngredientRecipeCreateSerializer(many=True,
@@ -176,7 +176,7 @@ class RecipeCreateUpdateSerializer(ModelSerializer):
 
 
 class ShoppingCartSerializer(ModelSerializer):
-    '''Сериализатор списка покупок.'''
+    """Сериализатор списка покупок."""
     user = IntegerField(source='user.id')
     recipe = IntegerField(source='recipe.id')
 
@@ -201,7 +201,7 @@ class ShoppingCartSerializer(ModelSerializer):
 
 
 class SubscribedSerializer(UserSerializer):
-    '''Сериализатор подписок.'''
+    """Сериализатор подписок."""
     recipes_count = SerializerMethodField('get_recipes_count')
     recipes = SerializerMethodField('get_recipes')
 

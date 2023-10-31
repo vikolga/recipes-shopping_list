@@ -6,7 +6,7 @@ from users.models import CustomUser
 
 
 class Tag(models.Model):
-    '''Модель тегов.'''
+    """Модель тегов."""
     name = models.CharField(
         max_length=200,
         unique=True
@@ -42,7 +42,7 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
-    '''Модель ингредиентов.'''
+    """Модель ингредиентов."""
     name = models.CharField(
         max_length=200,
     )
@@ -66,7 +66,7 @@ class Ingredient(models.Model):
 
 
 class TagRecipes(models.Model):
-    '''Промежуточная модель тегов в рецептах.'''
+    """Промежуточная модель тегов в рецептах."""
     recipe = models.ForeignKey(
         'Recipe',
         on_delete=models.CASCADE,
@@ -76,9 +76,17 @@ class TagRecipes(models.Model):
         on_delete=models.CASCADE,
     )
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipe', 'tag'],
+                name='unique_recipetag'
+            ),
+        ]
+
 
 class Recipe(models.Model):
-    '''Модель рецептов.'''
+    """Модель рецептов."""
     tags = models.ManyToManyField(
         Tag,
         through=TagRecipes,
@@ -143,7 +151,7 @@ class Recipe(models.Model):
 
 
 class IngredientRecipes(models.Model):
-    '''промежуточная модель ингредиентов в рецептах.'''
+    """Промежуточная модель ингредиентов в рецептах."""
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
@@ -172,7 +180,7 @@ class IngredientRecipes(models.Model):
 
 
 class Favourite(models.Model):
-    '''Модель избранного.'''
+    """Модель избранного."""
     user = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
@@ -199,7 +207,7 @@ class Favourite(models.Model):
 
 
 class ShoppingCart(models.Model):
-    '''Модель списка покупок.'''
+    """Модель списка покупок."""
     user = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,

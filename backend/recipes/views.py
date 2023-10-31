@@ -20,14 +20,14 @@ from .serializers import (RecipeCreateUpdateSerializer, IngredientSerializer,
 
 
 class TagViewSet(ReadOnlyModelViewSet):
-    '''Вьюсет обработки запроса тегов.'''
+    """Вьюсет обработки запроса тегов."""
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = (AdminOrReadOnly,)
 
 
 class IngredientViewSet(ReadOnlyModelViewSet):
-    '''Вьюсет обработки запроса ингредиентов.'''
+    """Вьюсет обработки запроса ингредиентов."""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (AdminOrReadOnly,)
@@ -36,7 +36,7 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 
 
 class RecipeViewSet(ModelViewSet):
-    '''Вьюсет обработки запроса рецептов.'''
+    """Вьюсет обработки запроса рецептов."""
     queryset = Recipe.objects.all()
     serializer = RecipeCreateUpdateSerializer
     pagination_class = CustomPageNumberPaginator
