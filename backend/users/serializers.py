@@ -1,3 +1,4 @@
+from django.forms import ValidationError
 from requests import Response
 from rest_framework import status
 from rest_framework.serializers import SerializerMethodField
@@ -20,15 +21,9 @@ class UserSerializer(UserDjoserSerializer):
         if user.is_anonymous:
             return False
         if author == user:
-            return Response(
-                {'errors': 'Вы пытаетесь подписаться на себя.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            raise ValidationError({'Вы пытаетесь подписаться на себя.'})
         if Subscriber.objects.filter(user=user, author=author).exists():
-            return Response(
-                {'errors': 'Вы уже подписаны на данного автора.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            raise ValidationError({'Вы уже подписаны на данного автора.'})
         return Subscriber.objects.filter(user=user, author=obj).exists()
 
     class Meta:
