@@ -1,9 +1,10 @@
 from django_filters.rest_framework import filters, FilterSet
+
 from recipes.models import Ingredient, Recipe, Tag
 
 
 class IngredientFilter(FilterSet):
-    ''''Кастомный фильтр для ингредиентов.'''
+    """Кастомный фильтр для ингредиентов."""
     name = filters.CharFilter(lookup_expr='istartswith')
 
     class Meta:

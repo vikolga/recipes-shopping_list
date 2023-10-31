@@ -1,7 +1,9 @@
 from rest_framework.pagination import PageNumberPagination
 
+from foodgram.settings import LIMIT
+
 
 class CustomPageNumberPaginator(PageNumberPagination):
-    '''паджинатор для вывода на странице ограниченного числа элементов.'''
+    """Паджинатор для вывода на странице ограниченного числа элементов."""
     page_size_query_param = 'limit'
-    limit = 6
+    limit = LIMIT

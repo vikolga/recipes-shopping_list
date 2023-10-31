@@ -2,7 +2,7 @@ from rest_framework import permissions
 
 
 class AuthorOrReadOnly(permissions.BasePermission):
-    '''Пермишенс для авторов рецепта.'''
+    """Пермишенс для авторов рецепта."""
     def has_permission(self, request, view):
         return (
             request.method in permissions.SAFE_METHODS
@@ -17,7 +17,7 @@ class AuthorOrReadOnly(permissions.BasePermission):
 
 
 class AdminOrReadOnly(permissions.BasePermission):
-    '''Пермишенс для администратора для доступа к тегам и ингредиентам.'''
+    """Пермишенс для администратора для доступа к тегам и ингредиентам."""
     def has_permission(self, request, view):
         return (
             request.method in permissions.SAFE_METHODS
