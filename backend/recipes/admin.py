@@ -43,11 +43,11 @@ class FavouriteAdmin(admin.ModelAdmin):
 
 
 class ShoppingCartAdmin(admin.ModelAdmin):
-    list_display = '__all__'
+    list_display = ('user', 'recipe')
 
 
 class IngredientRecipesAdmin(admin.ModelAdmin):
-    list_display = '__all__'
+    list_display = ('recipe', 'ingredient', 'amount')
 
 
 admin.site.register(Tag, TagAdmin)

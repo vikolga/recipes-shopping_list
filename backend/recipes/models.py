@@ -175,6 +175,10 @@ class IngredientRecipes(models.Model):
         ]
     )
 
+    class Meta:
+        verbose_name_plural = 'Ингредиенты в рецептах'
+        verbose_name = 'Ингредиенты в рецептах'
+
     def __str__(self):
         return f'{self.ingredient.name} {self.ingredient.measurement_unit}'
 
