@@ -149,15 +149,6 @@ class RecipeCreateUpdateSerializer(ModelSerializer):
                                    id=ingredient['id'])
                                )for ingredient in ingredients]
         )
-        # context = self.context['request']
-        # current_ingredients = context.data['ingredients']
-        # for ingredient in current_ingredients:
-        #     current_ingredient = Ingredient.objects.get(id=ingredient['id'])
-        #     IngredientRecipes.objects.create(
-        #         recipe=recipe,
-        #         ingredient=current_ingredient,
-        #         amount=ingredient['amount'],
-        #     )
 
     @transaction.atomic
     def create(self, validated_data):
@@ -240,7 +231,7 @@ class SubscribedSerializer(UserSerializer):
 
 
 class FavoriteSerializer(ModelSerializer):
-    '''Сериализатор издранного.'''
+    """Сериализатор издранного."""
     user = IntegerField(source='user.id')
     recipe = IntegerField(source='recipe.id')
 

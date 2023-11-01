@@ -115,7 +115,8 @@ class RecipeViewSet(ModelViewSet):
         #         status=status.HTTP_401_UNAUTHORIZED)
         # ingredients = IngredientRecipes.objects.filter(
         #     recipe__shopping_cart__user=user
-        # ).values('ingredient__name', 'ingredient__measurement_unit').annotate(
+        # ).values('ingredient__name',
+        # 'ingredient__measurement_unit').annotate(
         #     amount=Sum('amount')
         # )
         # data_shopping_cart = datetime.today()
