@@ -12,7 +12,7 @@ from api.paginations import CustomPageNumberPaginator
 
 
 class UserViewSet(UserViewSet):
-    '''Вьюсет обработки запроса пользователей.'''
+    """Вьюсет обработки запроса пользователей."""
     queryset = CustomUser.objects.all()
     pagination_class = CustomPageNumberPaginator
 

@@ -8,6 +8,7 @@ from recipes.models import IngredientRecipes
 
 
 def get_shopping_cart(user):
+    """Функция скачивания списка покупок."""
     if user.is_anonymous:
         return Response(
             {'error': 'Учетные данные не были предоставлены.'},
