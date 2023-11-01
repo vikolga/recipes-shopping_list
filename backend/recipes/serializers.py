@@ -104,28 +104,6 @@ class RecipeCreateUpdateSerializer(ModelSerializer):
         fields = ('tags', 'ingredients', 'author',
                   'name', 'image', 'text', 'cooking_time')
 
-    # def validate(self, data):
-    #     ingredients = self.initial_data.get('ingredients')
-    #     ingredient_list = []
-    #     for ingredient in ingredients:
-    #         if ingredient['id'] in ingredient_list:
-    #             raise ValidationError(
-    #                 {'detail': 'Ингредиент должен быть использован один.'})
-    #         ingredient_list.append(ingredient['id'])
-    #         if int(ingredient['amount']) <= 0:
-    #             raise ValidationError(
-    #                 {'detail': 'Ингридиентов должно быть больше 0.'})
-    #     tags = data.get('tags')
-    #     tags_list = []
-    #     for tag in tags:
-    #         if tag in tags_list:
-    #             raise ValidationError(
-    #                 {'detail': 'Теги должны быть уникальными!'})
-    #         tags_list.append(tag)
-    #     data['ingredients'] = ingredients
-    #     data['tags'] = tags
-    #     return data
-
     def validate_ingredients(self, value):
         ingredients = value
         if not ingredients:
@@ -136,29 +114,31 @@ class RecipeCreateUpdateSerializer(ModelSerializer):
         for ingredient in ingredients:
             if ingredient in ingredients_list:
                 raise ValidationError(
-                    {'detail': 'Ингридиенты должны быть уникальными.'})
+                    {'message': 'Ингредиенты должны быть уникальными.'})
             if int(ingredient['amount']) < 1:
                 raise ValidationError(
-                    'Должна быть хотя бы 1 единица ингредиента.')
+                    {'detail': 'Должна быть хотя бы 1 единица ингредиента.'})
             ingredients_list.append(ingredient)
         return value
 
-    # def validate_tags(self, value):
-    #     tags = value
-    #     if not tags:
-    #         raise ValidationError('Добавьте хотя бы один тег.')
-    #     tags_list = []
-    #     for tag in tags:
-    #         if tag in tags_list:
-    #             raise ValidationError('Теги должны быть уникальными!')
-    #         tags_list.append(tag)
-    #     return value
+    def validate_tags(self, value):
+        tags = value
+        if not tags:
+            raise ValidationError({'detail': 'Добавьте хотя бы один тег.'})
+        tags_list = []
+        for tag in tags:
+            if tag in tags_list:
+                raise ValidationError(
+                    {'detail': 'Теги должны быть уникальными!'})
+            tags_list.append(tag)
+        return value
 
-    # def validate_cooking_time(self, value):
-    #     cooking_time = value
-    #     if cooking_time < 1:
-    #         raise ValidationError('Минимальное время готовки - 1 минута.')
-    #     return value
+    def validate_cooking_time(self, value):
+        cooking_time = value
+        if cooking_time < 1:
+            raise ValidationError(
+                {'detail': 'Минимальное время готовки - 1 минута.'})
+        return value
 
     def create_ingredients(self, ingredients, recipe):
         IngredientRecipes.objects.bulk_create(
@@ -206,7 +186,7 @@ class ShoppingCartSerializer(ModelSerializer):
         recipe = data['recipe']['id']
         if ShoppingCart.objects.filter(user=user, recipe__id=recipe).exists():
             raise ValidationError(
-                {'Рецепт уже был добавлен в список покупок.'}
+                {'detail': 'Рецепт уже был добавлен в список покупок.'}
             )
         return data
 
