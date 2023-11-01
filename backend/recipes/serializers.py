@@ -251,3 +251,8 @@ class FavoriteSerializer(ModelSerializer):
         recipe = validated_data.get('recipe')
         Favourite.objects.get_or_create(user=user, recipe=recipe)
         return validated_data
+    
+    def to_representation(self, instance):
+        return RecipeSubscribSerializer(
+            instance.recipe,
+            context={'request': self.context['request']}).data

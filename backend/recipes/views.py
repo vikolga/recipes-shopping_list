@@ -12,7 +12,7 @@ from api.filters import IngredientFilter, RecipeFilter
 from api.utils import get_shopping_cart
 from .models import (Tag, Ingredient, Recipe, ShoppingCart,
                      Favourite)
-from .serializers import (RecipeCreateUpdateSerializer, IngredientSerializer,
+from .serializers import (FavoriteSerializer, RecipeCreateUpdateSerializer, IngredientSerializer,
                           RecipeListSerializer, ShoppingCartSerializer,
                           RecipeSubscribSerializer, TagSerializer)
 
@@ -56,79 +56,78 @@ class RecipeViewSet(ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
+    def get_shop_favor_function(self, request, id, model, model_serializer):
+        if request.method == 'POST':
+            serializer = model_serializer(
+                data={
+                    'user': request.user.id,
+                    'recipe': get_object_or_404(Recipe, id=id).id
+                },
+                context={'request': request}
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        del_model = get_object_or_404(model,
+                                      user=request.user,
+                                      recipe=get_object_or_404(Recipe, id=id))
+        self.perform_destroy(del_model)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
     @action(detail=True,
             permission_classes=[IsAuthenticated],
             methods=['post', 'delete'])
     def shopping_cart(self, request, pk):
-        user = request.user
-        recipe = get_object_or_404(Recipe, id=pk)
-        serializer = ShoppingCartSerializer(
-            data={'user': user.id, 'recipe': recipe.id}
-        )
-        if request.method == 'POST':
-            serializer.is_valid(raise_exception=True)
-            serializer.save(recipe=recipe, user=request.user)
-            serializer = RecipeSubscribSerializer(recipe)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        if request.method == 'DELETE':
-            if ShoppingCart.objects.filter(user=user, recipe__id=pk).exists():
-                get_object_or_404(ShoppingCart,
-                                  user=user, recipe__id=pk).delete()
-                return Response(
-                    {'message': 'Рецепт удален из избранного.'},
-                    status=status.HTTP_204_NO_CONTENT)
-            return Response(
-                {'error': 'Рецепт не был добавлен в избранное.'},
-                status=status.HTTP_400_BAD_REQUEST)
-        return Response(status)
+        return self.get_shop_favor_function(
+            request, id, ShoppingCart, ShoppingCartSerializer)
+        # user = request.user
+        # recipe = get_object_or_404(Recipe, id=pk)
+        # serializer = ShoppingCartSerializer(
+        #     data={'user': user.id, 'recipe': recipe.id}
+        # )
+        # if request.method == 'POST':
+        #     serializer.is_valid(raise_exception=True)
+        #     serializer.save(recipe=recipe, user=request.user)
+        #     serializer = RecipeSubscribSerializer(recipe)
+        #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # if request.method == 'DELETE':
+        #     if ShoppingCart.objects.filter(user=user, recipe__id=pk).exists():
+        #         get_object_or_404(ShoppingCart,
+        #                           user=user, recipe__id=pk).delete()
+        #         return Response(
+        #             {'message': 'Рецепт удален из избранного.'},
+        #             status=status.HTTP_204_NO_CONTENT)
+        #     return Response(
+        #         {'error': 'Рецепт не был добавлен в избранное.'},
+        #         status=status.HTTP_400_BAD_REQUEST)
+        # return Response(status)
 
     @action(detail=True,
             permission_classes=[IsAuthenticated],
             methods=['post', 'delete'])
     def favorite(self, request, pk):
-        user = request.user
-        if request.method == 'POST':
-            recipe = get_object_or_404(Recipe, id=pk)
-            Favourite.objects.create(user=user, recipe=recipe)
-            serializer = RecipeSubscribSerializer(recipe)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        if request.method == 'DELETE':
-            recipe = get_object_or_404(Recipe, id=pk)
-            if Favourite.objects.filter(user=user, recipe__id=pk).exists():
-                get_object_or_404(Favourite, user=user, recipe__id=pk).delete()
-                return Response(
-                    {'message': 'Рецепт удален из избранного.'},
-                    status=status.HTTP_204_NO_CONTENT)
-            return Response(
-                {'error': 'Рецепт не был добавлен в избранное.'},
-                status=status.HTTP_400_BAD_REQUEST)
-        return Response(status)
+        return self.get_shop_favor_function(
+            request, id, Favourite, FavoriteSerializer)
+        # user = request.user
+        # if request.method == 'POST':
+        #     recipe = get_object_or_404(Recipe, id=pk)
+        #     Favourite.objects.create(user=user, recipe=recipe)
+        #     serializer = RecipeSubscribSerializer(recipe)
+        #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # if request.method == 'DELETE':
+        #     recipe = get_object_or_404(Recipe, id=pk)
+        #     if Favourite.objects.filter(user=user, recipe__id=pk).exists():
+        #         get_object_or_404(Favourite, user=user, recipe__id=pk).delete()
+        #         return Response(
+        #             {'message': 'Рецепт удален из избранного.'},
+        #             status=status.HTTP_204_NO_CONTENT)
+        #     return Response(
+        #         {'error': 'Рецепт не был добавлен в избранное.'},
+        #         status=status.HTTP_400_BAD_REQUEST)
+        # return Response(status)
 
     @action(detail=False,
             permission_classes=[IsAuthenticated],)
     def download_shopping_cart(self, request):
         user = request.user
         return get_shopping_cart(user)
-        # if user.is_anonymous:
-        #     return Response(
-        #         {'error': 'Учетные данные не были предоставлены.'},
-        #         status=status.HTTP_401_UNAUTHORIZED)
-        # ingredients = IngredientRecipes.objects.filter(
-        #     recipe__shopping_cart__user=user
-        # ).values('ingredient__name',
-        # 'ingredient__measurement_unit').annotate(
-        #     amount=Sum('amount')
-        # )
-        # data_shopping_cart = datetime.today()
-        # list_shopping = (f'Список покупок из рецептов от'
-        #                  f'{data_shopping_cart:%d.%m.%Y}\n')
-        # list_shopping += '\n'.join([
-        #     f'- {ingredient["ingredient__name"]}'
-        #     f'({ingredient["ingredient__measurement_unit"]}) : '
-        #     f'{ingredient["amount"]}'
-        #     for ingredient in ingredients
-        # ])
-        # file = 'shopping_cart.txt'
-        # response = HttpResponse(list_shopping, content_type='text/plain')
-        # response['Content-Disposition'] = f'attachment; filename={file}'
-        # return response
