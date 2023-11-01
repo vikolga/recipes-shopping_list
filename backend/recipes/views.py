@@ -12,9 +12,10 @@ from api.filters import IngredientFilter, RecipeFilter
 from api.utils import get_shopping_cart
 from .models import (Tag, Ingredient, Recipe, ShoppingCart,
                      Favourite)
-from .serializers import (FavoriteSerializer, RecipeCreateUpdateSerializer, IngredientSerializer,
+from .serializers import (FavoriteSerializer, RecipeCreateUpdateSerializer,
+                          IngredientSerializer,
                           RecipeListSerializer, ShoppingCartSerializer,
-                          RecipeSubscribSerializer, TagSerializer)
+                          TagSerializer)
 
 
 class TagViewSet(ReadOnlyModelViewSet):
@@ -91,7 +92,8 @@ class RecipeViewSet(ModelViewSet):
         #     serializer = RecipeSubscribSerializer(recipe)
         #     return Response(serializer.data, status=status.HTTP_201_CREATED)
         # if request.method == 'DELETE':
-        #     if ShoppingCart.objects.filter(user=user, recipe__id=pk).exists():
+        #     if ShoppingCart.objects.filter(user=user,
+        # recipe__id=pk).exists():
         #         get_object_or_404(ShoppingCart,
         #                           user=user, recipe__id=pk).delete()
         #         return Response(
@@ -117,7 +119,8 @@ class RecipeViewSet(ModelViewSet):
         # if request.method == 'DELETE':
         #     recipe = get_object_or_404(Recipe, id=pk)
         #     if Favourite.objects.filter(user=user, recipe__id=pk).exists():
-        #         get_object_or_404(Favourite, user=user, recipe__id=pk).delete()
+        #         get_object_or_404(Favourite, user=user,
+        # recipe__id=pk).delete()
         #         return Response(
         #             {'message': 'Рецепт удален из избранного.'},
         #             status=status.HTTP_204_NO_CONTENT)
