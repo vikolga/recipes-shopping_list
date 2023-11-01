@@ -104,45 +104,44 @@ class RecipeCreateUpdateSerializer(ModelSerializer):
         fields = ('tags', 'ingredients', 'author',
                   'name', 'image', 'text', 'cooking_time')
 
-    def validate(self, data):
-        ingredients = self.initial_data.get('ingredients')
-        ingredient_list = []
-        for ingredient in ingredients:
-            if ingredient['id'] in ingredient_list:
-                raise ValidationError(
-                    {'detail': 'Ингредиент должен быть использован один раз.'})
-            ingredient_list.append(ingredient['id'])
-            if int(ingredient['amount']) <= 0:
-                raise ValidationError(
-                    {'detail': 'Ингридиентов должно быть больше 0.'})
-        tags = data.get('tags')
-        tags_list = []
-        for tag in tags:
-            if tag in tags_list:
-                raise ValidationError(
-                    {'detail': 'Теги должны быть уникальными!'})
-            tags_list.append(tag)
-        data['ingredients'] = ingredients
-        data['tags'] = tags
-        return data
-
-    # def validate_ingredients(self, value):
-    #     ingredients = value
-    #     if not ingredients:
-    #         raise ValidationError(
-    #             {'Добавьте хотя бы один ингридиент.'}
-    #         )
-    #     ingredients_list = []
+    # def validate(self, data):
+    #     ingredients = self.initial_data.get('ingredients')
+    #     ingredient_list = []
     #     for ingredient in ingredients:
-    #         current_ingredient = get_object_or_404(Ingredient,
-    #                                                id=ingredient['id'])
-    #         if ingredient in ingredients_list:
-    #             raise ValidationError('Ингридиенты должны быть уникальными.')
-    #         if int(ingredient['amount']) < 1:
+    #         if ingredient['id'] in ingredient_list:
     #             raise ValidationError(
-    #                 'Должна быть хотя бы 1 единица ингредиента.')
-    #         ingredients_list.append(current_ingredient)
-    #     return value
+    #                 {'detail': 'Ингредиент должен быть использован один раз.'})
+    #         ingredient_list.append(ingredient['id'])
+    #         if int(ingredient['amount']) <= 0:
+    #             raise ValidationError(
+    #                 {'detail': 'Ингридиентов должно быть больше 0.'})
+    #     tags = data.get('tags')
+    #     tags_list = []
+    #     for tag in tags:
+    #         if tag in tags_list:
+    #             raise ValidationError(
+    #                 {'detail': 'Теги должны быть уникальными!'})
+    #         tags_list.append(tag)
+    #     data['ingredients'] = ingredients
+    #     data['tags'] = tags
+    #     return data
+
+    def validate_ingredients(self, value):
+        ingredients = value
+        if not ingredients:
+            raise ValidationError(
+                {'detail': 'Добавьте хотя бы один ингридиент.'}
+            )
+        ingredients_list = []
+        for ingredient in ingredients:
+            if ingredient in ingredients_list:
+                raise ValidationError(
+                    {'detail': 'Ингридиенты должны быть уникальными.'})
+            if int(ingredient['amount']) < 1:
+                raise ValidationError(
+                    'Должна быть хотя бы 1 единица ингредиента.')
+            ingredients_list.append(ingredient)
+        return value
 
     # def validate_tags(self, value):
     #     tags = value
@@ -244,9 +243,11 @@ class SubscribedSerializer(UserSerializer):
         user = self.context.get('request').user
         author = self.context.get('request').author
         if Subscriber.objects.filter(author=author, user=user).exists():
-            raise ValidationError('Вы подписаны на данного пользователя.')
+            raise ValidationError(
+                {'detail': 'Вы подписаны на данного пользователя.'})
         if user == author:
-            raise ValidationError('Подписаться на самого себя нельзя.')
+            raise ValidationError(
+                {'detail': 'Подписаться на самого себя нельзя.'})
         return data
 
 
