@@ -111,80 +111,36 @@ class RecipeCreateUpdateSerializer(ModelSerializer):
             ingredient_id = ingredient['id']
             if ingredient_id in ingredients_list:
                 raise ValidationError({
-                    'ingredient': 'Ингредиенты должны быть уникальными'
+                    'ingredient':
+                    'Нельзя использовать два раза один ингредиент.'
                 })
             ingredients_list.append(ingredient_id)
             amount = ingredient['amount']
             if int(amount) <= 0:
                 raise ValidationError({
-                    'amount': 'Количество ингредиентов должно быть больше нуля'
+                    'amount': 'Минимальное количество ингредиентов 1.'
                 })
 
         tags = self.initial_data.get('tags')
         if not tags:
             raise ValidationError({
-                'tags': 'Вам нужно выбрать как минимум один тэг!'
+                'tags': 'Нужно выбрать хотя бы один тег.'
             })
         tags_list = []
         for tag in tags:
             if tag in tags_list:
                 raise ValidationError({
-                    'tags': 'Тэги должны быть уникальными!'
+                    'tags': 'Теги не должны повторяться.'
                 })
             tags_list.append(tag)
 
         cooking_time = self.initial_data.get('cooking_time')
         if int(cooking_time) <= 0:
             raise ValidationError({
-                'cooking_time': 'Время приготовления должно быть больше 0!'
+                'cooking_time':
+                'Время приготовления не может быть менее 1 минуты.'
             })
         return data
-        # ingredients_list = []
-        # ingredients = data['ingredients']
-        # for ingredient in ingredients:
-        #     ingredient = Ingredient.objects.get(id=ingredient['id'])
-        #     if ingredient in ingredients_list:
-        #         raise ValidationError('Ингредиенты должны быть уникальны.')
-        #     if ingredient['amount'] <= 0:
-        #         raise ValidationError('Количество должно быть болше 1.')
-        #     ingredients_list.append(ingredient)
-        # return data
-
-    # def validate_ingredients(self, value):
-    #     ingredients = value
-    #     if not ingredients:
-    #         raise ValidationError(
-    #             {'detail': 'Добавьте хотя бы один ингридиент.'}
-    #         )
-    #     ingredients_list = []
-    #     for ingredient in ingredients:
-    #         if ingredient in ingredients_list:
-    #             raise ValidationError(
-    #                 {'message': 'Ингредиенты должны быть уникальными.'})
-    #         if int(ingredient['amount']) < 1:
-    #             raise ValidationError(
-    #                 {'detail': 'Должна быть хотя бы 1 единица ингредиента.'})
-    #         ingredients_list.append(ingredient)
-    #     return value
-
-    # def validate_tags(self, value):
-    #     tags = value
-    #     if not tags:
-    #         raise ValidationError({'detail': 'Добавьте хотя бы один тег.'})
-    #     tags_list = []
-    #     for tag in tags:
-    #         if tag in tags_list:
-    #             raise ValidationError(
-    #                 {'detail': 'Теги должны быть уникальными!'})
-    #         tags_list.append(tag)
-    #     return value
-
-    # def validate_cooking_time(self, value):
-    #     cooking_time = value
-    #     if cooking_time < 1:
-    #         raise ValidationError(
-    #             {'detail': 'Минимальное время готовки - 1 минута.'})
-    #     return value
 
     def create_ingredients(self, ingredients, recipe):
         IngredientRecipes.objects.bulk_create(
