@@ -62,7 +62,7 @@ class RecipeViewSet(ModelViewSet):
         user = self.request.user
         data = {}
         data['recipe'] = recipe.pk
-        data['subscriber'] = user.pk
+        data['favouriting'] = user.pk
         if request.method == 'POST':
             serializer = model_serializer(data=data,
                                           context={'request': request})
