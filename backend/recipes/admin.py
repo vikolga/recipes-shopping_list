@@ -18,11 +18,13 @@ class IngredientInline(admin.TabularInline):
     model = IngredientRecipes
     extra = 3
     list_filter = ('name')
+    min_num = 1
 
 
 class TagInline(admin.TabularInline):
     model = TagRecipes
     extra = 1
+    min_num = 1
 
 
 class RecipeAdmin(admin.ModelAdmin):
