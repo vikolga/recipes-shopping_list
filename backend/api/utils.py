@@ -18,7 +18,7 @@ def get_shopping_cart(user):
         amount=Sum('amount')
     )
     data_shopping_cart = datetime.today()
-    list_shopping = (f'Список покупок из рецептов от'
+    list_shopping = (f'Список покупок из рецептов от '
                      f'{data_shopping_cart:%d.%m.%Y}\n')
     list_shopping += '\n'.join([
         f'- {ingredient["ingredient__name"]}'
