@@ -43,11 +43,14 @@ class FavouriteAdmin(admin.ModelAdmin):
 
 
 class ShoppingCartAdmin(admin.ModelAdmin):
+    """Модель админа для списка покупок."""
     list_display = ('user', 'recipe')
 
 
 class IngredientRecipesAdmin(admin.ModelAdmin):
+    """Модель админа для ингредиентов в рецептах."""
     list_display = ('recipe', 'ingredient', 'amount')
+    list_filter = ('ingredient', 'recipe')
 
 
 admin.site.register(Tag, TagAdmin)

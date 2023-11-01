@@ -142,15 +142,22 @@ class RecipeCreateUpdateSerializer(ModelSerializer):
         return value
 
     def create_ingredients(self, ingredients, recipe):
-        context = self.context['request']
-        current_ingredients = context.data['ingredients']
-        for ingredient in current_ingredients:
-            current_ingredient = Ingredient.objects.get(id=ingredient['id'])
-            IngredientRecipes.objects.create(
-                recipe=recipe,
-                ingredient=current_ingredient,
-                amount=ingredient['amount'],
-            )
+        IngredientRecipes.objects.bulk_create(
+            [IngredientRecipes(recipe=recipe,
+                               amount=ingredient['amount'],
+                               ingredient=Ingredient.objects.get(
+                                   id=ingredient['id'])
+                               )for ingredient in ingredients]
+        )
+        # context = self.context['request']
+        # current_ingredients = context.data['ingredients']
+        # for ingredient in current_ingredients:
+        #     current_ingredient = Ingredient.objects.get(id=ingredient['id'])
+        #     IngredientRecipes.objects.create(
+        #         recipe=recipe,
+        #         ingredient=current_ingredient,
+        #         amount=ingredient['amount'],
+        #     )
 
     @transaction.atomic
     def create(self, validated_data):
