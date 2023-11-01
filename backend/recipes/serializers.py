@@ -110,7 +110,7 @@ class RecipeCreateUpdateSerializer(ModelSerializer):
     #     for ingredient in ingredients:
     #         if ingredient['id'] in ingredient_list:
     #             raise ValidationError(
-    #                 {'detail': 'Ингредиент должен быть использован один раз.'})
+    #                 {'detail': 'Ингредиент должен быть использован один.'})
     #         ingredient_list.append(ingredient['id'])
     #         if int(ingredient['amount']) <= 0:
     #             raise ValidationError(
