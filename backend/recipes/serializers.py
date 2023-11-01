@@ -105,16 +105,50 @@ class RecipeCreateUpdateSerializer(ModelSerializer):
                   'name', 'image', 'text', 'cooking_time')
 
     def validate(self, data):
+        ingredients = self.initial_data.get('ingredients')
         ingredients_list = []
-        ingredients = data['ingredients']
         for ingredient in ingredients:
-            ingredient = Ingredient.objects.get(id=ingredient['id'])
-            if ingredient in ingredients_list:
-                raise ValidationError('Ингредиенты должны быть уникальны.')
-            if ingredient['amount'] <= 0:
-                raise ValidationError('Количество должно быть болше 1.')
-            ingredients_list.append(ingredient)
+            ingredient_id = ingredient['id']
+            if ingredient_id in ingredients_list:
+                raise ValidationError({
+                    'ingredient': 'Ингредиенты должны быть уникальными'
+                })
+            ingredients_list.append(ingredient_id)
+            amount = ingredient['amount']
+            if int(amount) <= 0:
+                raise ValidationError({
+                    'amount': 'Количество ингредиентов должно быть больше нуля'
+                })
+
+        tags = self.initial_data.get('tags')
+        if not tags:
+            raise ValidationError({
+                'tags': 'Вам нужно выбрать как минимум один тэг!'
+            })
+        tags_list = []
+        for tag in tags:
+            if tag in tags_list:
+                raise ValidationError({
+                    'tags': 'Тэги должны быть уникальными!'
+                })
+            tags_list.append(tag)
+
+        cooking_time = self.initial_data.get('cooking_time')
+        if int(cooking_time) <= 0:
+            raise ValidationError({
+                'cooking_time': 'Время приготовления должно быть больше 0!'
+            })
         return data
+        # ingredients_list = []
+        # ingredients = data['ingredients']
+        # for ingredient in ingredients:
+        #     ingredient = Ingredient.objects.get(id=ingredient['id'])
+        #     if ingredient in ingredients_list:
+        #         raise ValidationError('Ингредиенты должны быть уникальны.')
+        #     if ingredient['amount'] <= 0:
+        #         raise ValidationError('Количество должно быть болше 1.')
+        #     ingredients_list.append(ingredient)
+        # return data
 
     # def validate_ingredients(self, value):
     #     ingredients = value
