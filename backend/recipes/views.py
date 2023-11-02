@@ -12,10 +12,10 @@ from api.filters import IngredientFilter, RecipeFilter
 from api.utils import get_shopping_cart
 from .models import (Tag, Ingredient, Recipe, ShoppingCart,
                      Favourite)
-from .serializers import (RecipeCreateUpdateSerializer,
-                          IngredientSerializer,
-                          RecipeListSerializer,
-                          TagSerializer, RecipeSubscribSerializer)
+from api.serializers import (RecipeCreateUpdateSerializer,
+                             IngredientSerializer,
+                             RecipeListSerializer,
+                             TagSerializer, RecipeSubscribSerializer)
 
 
 class TagViewSet(ReadOnlyModelViewSet):

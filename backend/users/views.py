@@ -6,8 +6,8 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 
 from .models import CustomUser, Subscriber
-from .serializers import UserCreateSerializer, UserSerializer
-from recipes.serializers import SubscribedSerializer
+from api.serializers import UserCreateSerializer, UserSerializer
+from api.serializers import SubscribedSerializer
 from api.paginations import CustomPageNumberPaginator
 
 

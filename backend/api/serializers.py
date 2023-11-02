@@ -1,15 +1,35 @@
 from django.forms import ValidationError
 from django.db import transaction
 from drf_extra_fields.fields import Base64ImageField
+from djoser.serializers import UserSerializer as UserDjoserSerializer
+from djoser.serializers import UserCreateSerializer
 from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import (ModelSerializer,
                                         SerializerMethodField, ReadOnlyField,
                                         PrimaryKeyRelatedField, IntegerField)
 
-from users.serializers import UserSerializer
 from users.models import CustomUser, Subscriber
-from .models import (Tag, Ingredient, Recipe, IngredientRecipes,
-                     ShoppingCart, Favourite)
+from recipes.models import (Tag, Ingredient, Recipe, IngredientRecipes,
+                            ShoppingCart, Favourite)
+
+
+class UserSerializer(UserDjoserSerializer):
+    """Сериализатор для вывода модели кастомного пользователя."""
+    is_subscribed = SerializerMethodField(
+        'get_is_subscribed',
+        read_only=True
+    )
+
+    def get_is_subscribed(self, obj):
+        user = self.context['request'].user
+        if user.is_anonymous:
+            return False
+        return Subscriber.objects.filter(user=user, author=obj).exists()
+
+    class Meta:
+        model = CustomUser
+        fields = ('id', 'username', 'email', 'first_name',
+                  'last_name', 'is_subscribed')
 
 
 class TagSerializer(ModelSerializer):
@@ -204,9 +224,6 @@ class SubscribedSerializer(UserSerializer):
         fields = ('email', 'id', 'username', 'first_name', 'last_name',
                   'is_subscribed', 'recipes', 'recipes_count')
 
-    # def get_recipes_count(self, obj):
-    #     return obj.recipes.count()
-
     def get_recipes(self, obj):
         request = self.context.get('request')
         recipes = obj.recipes.all()
@@ -249,3 +266,10 @@ class FavoriteSerializer(ModelSerializer):
         recipe = validated_data.get('recipe')
         Favourite.objects.get_or_create(user=user, recipe=recipe)
         return validated_data
+
+
+class UserCreateSerializer(UserCreateSerializer):
+    """Сериализатор для создания пользователя."""
+    class Meta:
+        model = CustomUser
+        fields = ('email', 'username', 'first_name', 'last_name', 'password')
