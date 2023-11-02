@@ -129,7 +129,8 @@ class RecipeCreateUpdateSerializer(ModelSerializer):
         ingredients_list = [ingredient['id'] for ingredient in ingredients]
         if len(ingredients_list) > len(set(ingredients_list)):
             raise ValidationError({
-                'ingredients': 'Нельзя использовать два раза один ингредиент.'
+                'ingredients_list':
+                'Нельзя использовать два раза один ингредиент.'
             })
         for ingredient in ingredients:
             # ingredient_id = ingredient['id']
