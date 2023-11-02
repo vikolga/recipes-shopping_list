@@ -127,13 +127,12 @@ class RecipeCreateUpdateSerializer(ModelSerializer):
     def validate(self, data):
         ingredients = self.initial_data.get('ingredients')
         # ingredients_list = []
+        if len(ingredients) > len(set(ingredients)):
+            raise ValidationError({
+                'ingredients': 'Нельзя использовать два раза один ингредиент.'
+            })
         for ingredient in ingredients:
             # ingredient_id = ingredient['id']
-            if len(ingredients) > len(set(ingredients)):
-                raise ValidationError({
-                    'ingredient':
-                    'Нельзя использовать два раза один ингредиент.'
-                })
             # ingredients_list.append(ingredient_id)
             amount = ingredient['amount']
             if int(amount) <= 0:
