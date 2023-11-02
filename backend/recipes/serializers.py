@@ -118,7 +118,7 @@ class RecipeCreateUpdateSerializer(ModelSerializer):
             amount = ingredient['amount']
             if int(amount) <= 0:
                 raise ValidationError({
-                    'amount': 'Минимальное количество ингредиентов 1.'
+                    'ingredient': 'Минимальное количество ингредиентов 1.'
                 })
 
         tags = self.initial_data.get('tags')
