@@ -208,7 +208,6 @@ class ShoppingCartSerializer(ModelSerializer):
 
 class SubscribedSerializer(UserSerializer):
     """Сериализатор подписок."""
-    recipes_count = SerializerMethodField('get_recipes_count')
     recipes = SerializerMethodField('get_recipes')
     recipes_count = IntegerField(source='recipes.count', read_only=True)
 
