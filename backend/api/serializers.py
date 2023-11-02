@@ -136,7 +136,7 @@ class RecipeCreateUpdateSerializer(ModelSerializer):
             amount = ingredient['amount']
             if int(amount) <= 0:
                 raise ValidationError(
-                    'Минимальное количество ингредиентов 1.')
+                    {'amount': 'Минимальное количество ингредиентов 1.'})
 
         tags = self.initial_data.get('tags')
         if not tags:
@@ -146,13 +146,6 @@ class RecipeCreateUpdateSerializer(ModelSerializer):
         if len(tags) > len(set(tags)):
             raise ValidationError({
                 'tags': 'Теги не должны повторяться.'})
-        # tags_list = []
-        # for tag in tags:
-        #     if tag in tags_list:
-        #         raise ValidationError({
-        #             'tags': 'Теги не должны повторяться.'
-        #         })
-        #     tags_list.append(tag)
 
         cooking_time = self.initial_data.get('cooking_time')
         if int(cooking_time) <= 0:
