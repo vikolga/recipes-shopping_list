@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractUser
 
 
 class CustomUser(AbstractUser):
-    """Кастомная модель пользователя от AbstractUser"""
+    """Кастомная модель пользователя от AbstractUser."""
 
     username = models.CharField(
         max_length=150,
@@ -37,7 +37,7 @@ class CustomUser(AbstractUser):
 
 
 class Subscriber(models.Model):
-    """ Модель подписок на пользователей """
+    """Модель подписок на пользователей."""
     user = models.ForeignKey(
         CustomUser,
         related_name='subscriber',

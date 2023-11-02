@@ -197,14 +197,15 @@ class SubscribedSerializer(UserSerializer):
     """Сериализатор подписок."""
     recipes_count = SerializerMethodField('get_recipes_count')
     recipes = SerializerMethodField('get_recipes')
+    recipes_count = IntegerField(source='recipes.count', read_only=True)
 
     class Meta:
         model = CustomUser
         fields = ('email', 'id', 'username', 'first_name', 'last_name',
                   'is_subscribed', 'recipes', 'recipes_count')
 
-    def get_recipes_count(self, obj):
-        return obj.recipes.count()
+    # def get_recipes_count(self, obj):
+    #     return obj.recipes.count()
 
     def get_recipes(self, obj):
         request = self.context.get('request')
