@@ -145,13 +145,16 @@ class RecipeCreateUpdateSerializer(ModelSerializer):
             raise ValidationError({
                 'tags': 'Нужно выбрать хотя бы один тег.'
             })
-        tags_list = []
-        for tag in tags:
-            if tag in tags_list:
-                raise ValidationError({
-                    'tags': 'Теги не должны повторяться.'
-                })
-            tags_list.append(tag)
+        if len(tags) > len(set(tags)):
+            raise ValidationError({
+                'tags': 'Теги не должны повторяться.'})
+        # tags_list = []
+        # for tag in tags:
+        #     if tag in tags_list:
+        #         raise ValidationError({
+        #             'tags': 'Теги не должны повторяться.'
+        #         })
+        #     tags_list.append(tag)
 
         cooking_time = self.initial_data.get('cooking_time')
         if int(cooking_time) <= 0:
