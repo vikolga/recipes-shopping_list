@@ -125,7 +125,7 @@ class RecipeCreateUpdateSerializer(ModelSerializer):
                   'name', 'image', 'text', 'cooking_time')
 
     def validate(self, data):
-        ingredients = self.initial_data.get('ingredients')
+        ingredients = data.get('ingredients')
         # ingredients_list = []
         if len(ingredients) > len(set(ingredients)):
             raise ValidationError({
