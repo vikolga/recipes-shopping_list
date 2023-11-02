@@ -179,7 +179,7 @@ class ShoppingCartSerializer(ModelSerializer):
     user = IntegerField(source='user.id')
     recipe = IntegerField(source='recipe.id')
 
-    class Meta():
+    class Meta:
         model = Favourite
         fields = '__all__'
 
@@ -192,11 +192,11 @@ class ShoppingCartSerializer(ModelSerializer):
             )
         return data
 
-    def create(self, validated_data):
-        user = validated_data['user']
-        recipe = validated_data['recipe']
-        ShoppingCart.objects.get_or_create(user=user, recipe=recipe)
-        return validated_data
+    # def create(self, validated_data):
+    #     user = validated_data['user']
+    #     recipe = validated_data['recipe']
+    #     ShoppingCart.objects.get_or_create(user=user, recipe=recipe)
+    #     return validated_data
 
 
 class SubscribedSerializer(UserSerializer):
@@ -204,7 +204,7 @@ class SubscribedSerializer(UserSerializer):
     recipes_count = SerializerMethodField('get_recipes_count')
     recipes = SerializerMethodField('get_recipes')
 
-    class Meta():
+    class Meta:
         model = CustomUser
         fields = ('email', 'id', 'username', 'first_name', 'last_name',
                   'is_subscribed', 'recipes', 'recipes_count')
@@ -238,7 +238,7 @@ class FavoriteSerializer(ModelSerializer):
     user = IntegerField(source='user.id')
     recipe = IntegerField(source='recipe.id')
 
-    class Meta():
+    class Meta:
         model = Favourite
         fields = '__all__'
 
