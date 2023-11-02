@@ -77,9 +77,6 @@ class RecipeViewSet(ModelViewSet):
                 return Response(status=status.HTTP_204_NO_CONTENT)
             return Response('errors: Объект не в списке.',
                             status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response('errors: Метод обращения недопустим.',
-                            status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True,
             permission_classes=[IsAuthenticated],

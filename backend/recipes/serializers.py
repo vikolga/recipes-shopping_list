@@ -192,12 +192,6 @@ class ShoppingCartSerializer(ModelSerializer):
             )
         return data
 
-    # def create(self, validated_data):
-    #     user = validated_data['user']
-    #     recipe = validated_data['recipe']
-    #     ShoppingCart.objects.get_or_create(user=user, recipe=recipe)
-    #     return validated_data
-
 
 class SubscribedSerializer(UserSerializer):
     """Сериализатор подписок."""
