@@ -2,18 +2,12 @@ from datetime import datetime
 
 from django.http import HttpResponse
 from django.db.models import Sum
-from requests import Response
-from rest_framework import status
 
 from recipes.models import IngredientRecipes
 
 
 def get_shopping_cart(user):
     """Функция скачивания списка покупок."""
-    if user.is_anonymous:
-        return Response(
-            {'error': 'Учетные данные не были предоставлены.'},
-            status=status.HTTP_401_UNAUTHORIZED)
     ingredients = IngredientRecipes.objects.filter(
         recipe__shopping_cart__user=user
     ).values('ingredient__name', 'ingredient__measurement_unit').annotate(

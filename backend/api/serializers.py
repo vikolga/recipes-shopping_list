@@ -136,7 +136,7 @@ class RecipeCreateUpdateSerializer(ModelSerializer):
             amount = ingredient['amount']
             if int(amount) <= 0:
                 raise ValidationError(
-                    {'amount': 'Минимальное количество ингредиентов 1.'})
+                    'Минимальное количество ингредиентов 1.')
 
         tags = self.initial_data.get('tags')
         if not tags:
@@ -176,7 +176,6 @@ class RecipeCreateUpdateSerializer(ModelSerializer):
     @transaction.atomic
     def update(self, instance, validated_data):
         ingredients = validated_data.pop('ingredient_used')
-        # recipe = instance
         IngredientRecipes.objects.filter(recipe=instance).delete()
         self.create_ingredients(ingredients, instance)
         return super().update(instance, validated_data)
