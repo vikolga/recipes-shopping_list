@@ -133,9 +133,9 @@ class RecipeCreateUpdateSerializer(ModelSerializer):
                 'Нельзя использовать два раза один ингредиент.'
             })
         for ingredient in ingredients:
-            amount = ingredient['amount']
-            if amount <= 0:
-                raise ValidationError('Минимальное количество ингредиентов 1.')
+            if int(ingredient['amount']) <= 0:
+                raise ValidationError({
+                    'detail': 'Минимальное количество ингредиентов 1.'})
 
         tags = self.initial_data.get('tags')
         if not tags:
