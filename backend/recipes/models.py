@@ -163,16 +163,16 @@ class IngredientRecipes(models.Model):
         related_name='recipe_used'
     )
     amount = models.PositiveSmallIntegerField(
-        validators=[
-            MinValueValidator(
-                1,
-                message='Количество ингредиента не может быть менее единицы.'
-            ),
-            MaxValueValidator(
-                90000,
-                message='Ингредиент не может быть больше 90000 единиц.'
-            )
-        ]
+        # validators=[
+        #     MinValueValidator(
+        #         1,
+        #         message='Количество ингредиента не может быть менее единицы.'
+        #     ),
+        #     MaxValueValidator(
+        #         90000,
+        #         message='Ингредиент не может быть больше 90000 единиц.'
+        #     )
+        # ]
     )
 
     class Meta:
