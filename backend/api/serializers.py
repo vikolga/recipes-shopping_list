@@ -1,13 +1,12 @@
 from django.db import transaction
-from django.core.exceptions import ValidationError
 from drf_extra_fields.fields import Base64ImageField
 from djoser.serializers import UserSerializer as UserDjoserSerializer
 from djoser.serializers import UserCreateSerializer
 from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import (ModelSerializer,
                                         SerializerMethodField, ReadOnlyField,
-                                        PrimaryKeyRelatedField, IntegerField)
-# ValidationError)
+                                        PrimaryKeyRelatedField, IntegerField,
+                                        ValidationError)
 
 from users.models import CustomUser, Subscriber
 from recipes.models import (Tag, Ingredient, Recipe, IngredientRecipes,
@@ -136,8 +135,8 @@ class RecipeCreateUpdateSerializer(ModelSerializer):
             })
         for ingredient in ingredients:
             if int(ingredient['amount']) < 0:
-                raise ValidationError(
-                    'Минимальное количество ингредиентов 1.')
+                raise ValidationError({
+                    'ingredients': 'Минимальное количество ингредиентов 1.'})
 
         tags = self.initial_data.get('tags')
         if not tags:
