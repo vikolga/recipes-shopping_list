@@ -5,7 +5,7 @@
 Проект доступен по ссылке: http://foodgramov.hopto.org/
 
 Для проверки:
-- супер пользователь: ov.reatch@gmail.com
+- супер пользователь: vikolga
 - пароль: 123qwe
 
 Foodgram - проект позволяет:
