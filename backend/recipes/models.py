@@ -163,7 +163,8 @@ class IngredientRecipes(models.Model):
     )
     amount = models.IntegerField(
         validators=[MinValueValidator(1)],
-        error_messages={'ingredients': 'Минимальное количество ингредиентов 1.'})
+        error_messages={'ingredients':
+                        'Минимальное количество ингредиентов 1.'})
 
     class Meta:
         verbose_name_plural = 'Ингредиенты в рецептах'
