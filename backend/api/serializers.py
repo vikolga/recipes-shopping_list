@@ -67,9 +67,9 @@ class IngredientRecipesSerializer(ModelSerializer):
 
 
 class IngredientRecipeCreateSerializer(ModelSerializer):
-    id = PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
     """Сериализатор промежуточной модели ингредиентов в рецептах
     для создания рецепта."""
+    id = PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
     amount = IntegerField(min_value=1, max_value=1000000)
 
     class Meta:
@@ -133,7 +133,7 @@ class RecipeCreateUpdateSerializer(ModelSerializer):
                 'ingredients_list':
                 'Нельзя использовать два раза один ингредиент.'
             })
-        for ingredient in ingredients:
+        for ingredient in ingredients_list:
             if int(ingredient['amount']) < 1:
                 raise ValidationError(
                     'Минимальное количество ингредиентов 1.')
