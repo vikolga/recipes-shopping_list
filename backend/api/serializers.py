@@ -206,7 +206,7 @@ class ShoppingCartSerializer(ModelSerializer):
 
 
 class SubscribedSerializer(UserSerializer):
-    """Сериализатор подписок."""
+    """Сериализатор подписок пользователя."""
     recipes = SerializerMethodField('get_recipes')
     recipes_count = IntegerField(source='recipes.count', read_only=True)
 
