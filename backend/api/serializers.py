@@ -134,7 +134,7 @@ class RecipeCreateUpdateSerializer(ModelSerializer):
                 'Нельзя использовать два раза один ингредиент.'
             })
         for ingredient in ingredients:
-            if int(ingredient['amount']) <= 0:
+            if int(ingredient['amount']) < 0:
                 raise ValidationError(
                     'Минимальное количество ингредиентов 1.')
 

@@ -129,8 +129,7 @@ class Recipe(models.Model):
                 message='Время приготовления не может быть менее 1 минуты.'),
             MaxValueValidator(
                 900,
-                message='Время приготовления не может быть больше 15 часов.'
-            )
+                message='Время приготовления не может быть больше 15 часов.')
         ]
     )
     pub_date = models.DateTimeField(auto_now_add=True)
