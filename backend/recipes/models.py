@@ -167,7 +167,6 @@ class IngredientRecipes(models.Model):
             MinValueValidator(1,
                               message='Минимальное количество ингредиентов 1.')
         ],
-        default=1
     )
 
     class Meta:
