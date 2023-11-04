@@ -163,10 +163,10 @@ class IngredientRecipes(models.Model):
         related_name='recipe_used'
     )
     amount = models.IntegerField(
-        validators=[
-            MinValueValidator(1,
-                              message='Минимальное количество ингредиентов 1.')
-        ],
+        # validators=[
+        #     MinValueValidator(1,
+        #                       message='Минимальное количество ингредиентов 1.')
+        # ],
     )
 
     class Meta:
