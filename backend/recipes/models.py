@@ -165,7 +165,7 @@ class IngredientRecipes(models.Model):
     amount = models.IntegerField(
         # validators=[
         #     MinValueValidator(1,
-        #                       message='Минимальное количество ингредиентов 1.')
+        #                     message='Минимальное количество ингредиентов 1.')
         # ],
     )
 
