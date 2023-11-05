@@ -161,7 +161,10 @@ class IngredientRecipes(models.Model):
         on_delete=models.CASCADE,
         related_name='recipe_used'
     )
-    amount = models.PositiveSmallIntegerField()
+    amount = models.PositiveSmallIntegerField(
+        validators=(MinValueValidator(1),),
+        error_messages={'validators': 'Количество ингридиентов неверно.'}
+    )
 
     class Meta:
         verbose_name_plural = 'Ингредиенты в рецептах'
