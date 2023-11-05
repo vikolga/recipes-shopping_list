@@ -2,7 +2,7 @@ from django.db import transaction
 from drf_extra_fields.fields import Base64ImageField
 from djoser.serializers import UserSerializer as UserDjoserSerializer
 from djoser.serializers import UserCreateSerializer
-from rest_framework.relations import SlugRelatedField
+# from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import (ModelSerializer,
                                         SerializerMethodField, ReadOnlyField,
                                         PrimaryKeyRelatedField, IntegerField,
