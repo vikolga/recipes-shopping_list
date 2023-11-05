@@ -115,10 +115,6 @@ class RecipeCreateUpdateSerializer(ModelSerializer):
                                                    source='ingredient_used')
     cooking_time = IntegerField()
     author = UserSerializer(read_only=True)
-    # author = SlugRelatedField(
-    #     slug_field='username',
-    #     read_only=True
-    # )
 
     class Meta:
         model = Recipe
