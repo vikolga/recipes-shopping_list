@@ -70,7 +70,7 @@ class IngredientRecipeCreateSerializer(ModelSerializer):
     """Сериализатор промежуточной модели ингредиентов в рецептах
     для создания рецепта."""
     id = PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
-    amount = IntegerField(min_value=1, max_value=1000000)
+    amount = IntegerField()
 
     class Meta:
         model = IngredientRecipes
